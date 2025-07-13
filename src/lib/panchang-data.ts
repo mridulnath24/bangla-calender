@@ -1,168 +1,112 @@
 import type { PanchangDate, TodayInfo } from './types';
-import { BENGALI_WEEKDAYS, BENGALI_MONTHS } from './bengali-helpers';
+import { BENGALI_WEEKDAYS, BENGALI_MONTHS, toBengaliNumber } from './bengali-helpers';
 
-// The Bengali year is 593 years behind the Gregorian year.
-const BENGALI_YEAR_OFFSET = 593;
-// Pohela Boishakh is on April 14th (or 15th in a leap year before it).
-const POHELA_BOISHAKH_GREGORIAN_MONTH = 3; // April (0-indexed)
-const POHELA_BOISHAKH_GREGORIAN_DATE = 14;
-
-// The official revised Bengali calendar used in Bangladesh has fixed month lengths.
-// This is a simpler system.
-// Baishakh to Bhadra are 31 days. Ashwin to Chaitra are 30 days.
-// Falgun has 31 days in a leap year.
-const BENGALI_MONTH_DAYS_REGULAR = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
-const BENGALI_MONTH_DAYS_LEAP =   [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 31, 30];
-
-// Helper to check if a Gregorian year is a leap year.
-const isGregorianLeap = (year: number): boolean => {
-  return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
-};
-
-// Converts a Gregorian date to a Bengali date based on the revised (Bangladesh) system.
-const convertGregorianToBengali = (gregorianDate: Date): { year: number, month: number, day: number } => {
-    const gYear = gregorianDate.getFullYear();
-    const gMonth = gregorianDate.getMonth(); // 0-indexed
-    const gDay = gregorianDate.getDate();
-
-    let bYear = gYear - BENGALI_YEAR_OFFSET;
-    
-    // Determine the Gregorian date of Pohela Boishakh for the current Gregorian year.
-    const pohelaBoishakh = new Date(gYear, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
-
-    if (gregorianDate < pohelaBoishakh) {
-        bYear--;
-    }
-    
-    // Calculate days passed since Pohela Boishakh of the current Bengali year.
-    const bNewYearDate = new Date(bYear + BENGALI_YEAR_OFFSET, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
-    
-    // Calculate difference in days. Add 1 to be inclusive of the start day.
-    const diffTime = gregorianDate.getTime() - bNewYearDate.getTime();
-    let daysSinceBoishakh = Math.round(diffTime / (1000 * 60 * 60 * 24));
-    
-    const bengaliMonthDays = isGregorianLeap(bYear + BENGALI_YEAR_OFFSET + 1) ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
-    
-    let bMonth = 0;
-    for(let i=0; i < bengaliMonthDays.length; i++) {
-        if(daysSinceBoishakh < bengaliMonthDays[i]) {
-            bMonth = i;
-            break;
-        }
-        daysSinceBoishakh -= bengaliMonthDays[i];
-    }
-    
-    const bDay = daysSinceBoishakh + 1;
-
-    return { year: bYear, month: bMonth, day: bDay };
-}
-
-const convertBengaliToGregorian = (bengaliYear: number, bengaliMonthIndex: number, bengaliDay: number): Date => {
-    const pohelaBoishakhGregorianYear = bengaliYear + BENGALI_YEAR_OFFSET;
-
-    const isLeap = isGregorianLeap(pohelaBoishakhGregorianYear + 1);
-    const bengaliMonthDays = isLeap ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
-
-    let daysPassed = bengaliDay - 1;
-    for (let i = 0; i < bengaliMonthIndex; i++) {
-        daysPassed += bengaliMonthDays[i];
-    }
-
-    const gregorianDate = new Date(pohelaBoishakhGregorianYear, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
-    gregorianDate.setDate(gregorianDate.getDate() + daysPassed);
-
-    return gregorianDate;
-};
-
+// Hardcoded data for Aashar 1432 (June/July 2025) based on the provided image.
+const aashar1432Data: Omit<PanchangDate, 'isToday' | 'bengaliWeekday' | 'bengaliMonthIndex' | 'bengaliYear' | 'bengaliMonth'>[] = [
+  { gregorianDate: 16, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 1, tithi: { name: 'পঞ্চমী', endTime: '' }, nakshatra: { name: 'ধনিষ্ঠা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 17, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 2, tithi: { name: 'ষষ্ঠী', endTime: '' }, nakshatra: { name: 'শতভিষা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 18, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 3, tithi: { name: 'সপ্তমী', endTime: '' }, nakshatra: { name: 'পূর্ব ভাদ্রপদ', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 19, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 4, tithi: { name: 'অষ্টমী', endTime: '' }, nakshatra: { name: 'উত্তর ভাদ্রপদ', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 20, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 5, tithi: { name: 'নবমী', endTime: '' }, nakshatra: { name: 'রেবতী', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 21, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 6, tithi: { name: 'দশমী', endTime: '' }, nakshatra: { name: 'অশ্বিনী', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 22, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 7, tithi: { name: 'একাদশী', endTime: '' }, nakshatra: { name: 'দ্বিজা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 23, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 8, tithi: { name: 'দ্বাদশী', endTime: '' }, nakshatra: { name: 'ভরণী', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 24, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 9, tithi: { name: 'ত্রয়োদশী', endTime: '' }, nakshatra: { name: 'কৃত্তিকা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 25, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 10, tithi: { name: 'চতুর্দশী', endTime: '' }, nakshatra: { name: 'রোহিণী', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 26, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 11, tithi: { name: 'অমাবস্যা', endTime: '' }, nakshatra: { name: 'মৃগশিরা', endTime: '' }, moonPhase: 'অমাবস্যা', events: ['অমাবস্যা'] },
+  { gregorianDate: 27, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 12, tithi: { name: 'প্রতিপদ', endTime: '' }, nakshatra: { name: 'আর্দ্রা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 28, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 13, tithi: { name: 'দ্বিতীয়া', endTime: '' }, nakshatra: { name: 'পুনর্বসু', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: ['রথযাত্রা'] },
+  { gregorianDate: 29, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 14, tithi: { name: 'তৃতীয়া', endTime: '' }, nakshatra: { name: 'পুষ্যা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 30, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 15, tithi: { name: 'চতুর্থী', endTime: '' }, nakshatra: { name: 'অশ্লেষা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 1, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 16, tithi: { name: 'পঞ্চমী', endTime: '' }, nakshatra: { name: 'মঘা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 2, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 17, tithi: { name: 'ষষ্ঠী', endTime: '' }, nakshatra: { name: 'পূর্ব ফাল্গুনী', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 3, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 18, tithi: { name: 'সপ্তমী', endTime: '' }, nakshatra: { name: 'উত্তর ফাল্গুনী', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 4, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 19, tithi: { name: 'অষ্টমী', endTime: '' }, nakshatra: { name: 'হস্তা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 5, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 20, tithi: { name: 'নবমী', endTime: '' }, nakshatra: { name: 'চিত্রা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 6, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 21, tithi: { name: 'দশমী', endTime: '' }, nakshatra: { name: 'স্বাতী', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 7, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 22, tithi: { name: 'একাদশী', endTime: '' }, nakshatra: { name: 'বিশাখা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: ['শয়ন একাদশী', 'একাদশী'] },
+  { gregorianDate: 8, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 23, tithi: { name: 'দ্বাদশী', endTime: '' }, nakshatra: { name: 'অনুরাধা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 9, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 24, tithi: { name: 'ত্রয়োদশী', endTime: '' }, nakshatra: { name: 'জ্যেষ্ঠা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 10, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 25, tithi: { name: 'চতুর্দশী', endTime: '' }, nakshatra: { name: 'মূলা', endTime: '' }, moonPhase: 'শুক্লপক্ষ', events: [] },
+  { gregorianDate: 11, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 26, tithi: { name: 'পূর্ণিমা', endTime: '' }, nakshatra: { name: 'পূর্বাষাঢ়া', endTime: '' }, moonPhase: 'পূর্ণিমা', events: ['পূর্ণিমা'] },
+  { gregorianDate: 12, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 27, tithi: { name: 'প্রতিপদ', endTime: '' }, nakshatra: { name: 'উত্তরাষাঢ়া', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 13, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 28, tithi: { name: 'দ্বিতীয়া', endTime: '' }, nakshatra: { name: 'শ্রবণা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 14, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 29, tithi: { name: 'তৃতীয়া', endTime: '' }, nakshatra: { name: 'ধনিষ্ঠা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 15, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 30, tithi: { name: 'চতুর্থী', endTime: '' }, nakshatra: { name: 'শতভিষা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 16, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 31, tithi: { name: 'পঞ্চমী', endTime: '' }, nakshatra: { name: 'পূর্ব ভাদ্রপদ', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+  { gregorianDate: 17, gregorianMonth: 6, gregorianYear: 2025, bengaliDate: 32, tithi: { name: 'ষষ্ঠী', endTime: '' }, nakshatra: { name: 'রেবতী', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
+];
 
 const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): PanchangDate[] => {
-    const isLeap = isGregorianLeap(bengaliYear + BENGALI_YEAR_OFFSET + 1);
-    const monthLengths = isLeap ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
-    const daysInMonth = monthLengths[bengaliMonthIndex];
+    // For now, we only return data for Aashar 1432
+    if (bengaliYear !== 1432 || bengaliMonthIndex !== 2) {
+        // Return empty array or some placeholder for other months
+        // This will prevent the app from crashing if user selects other months.
+        // A full implementation would require data for all months.
+        const BENGALI_MONTH_DAYS_REGULAR = [31, 31, 32, 31, 31, 30, 30, 30, 30, 30, 30, 30];
+        const daysInMonth = BENGALI_MONTH_DAYS_REGULAR[bengaliMonthIndex] || 30;
+         return Array.from({ length: daysInMonth }, (_, i) => {
+            const bengaliDate = i + 1;
+            const gregorianDate = new Date(bengaliYear-593, bengaliMonthIndex, bengaliDate); // Approximation
+            return {
+                gregorianDate: gregorianDate.getDate(),
+                gregorianMonth: gregorianDate.getMonth(),
+                gregorianYear: gregorianDate.getFullYear(),
+                bengaliDate: bengaliDate,
+                bengaliMonth: BENGALI_MONTHS[bengaliMonthIndex],
+                bengaliMonthIndex: bengaliMonthIndex,
+                bengaliYear: bengaliYear,
+                bengaliWeekday: BENGALI_WEEKDAYS[gregorianDate.getDay()],
+                tithi: { name: 'N/A', endTime: '' },
+                nakshatra: { name: 'N/A', endTime: '' },
+                moonPhase: 'কৃষ্ণপক্ষ',
+                events: [],
+                isToday: false,
+            };
+        });
+    }
 
-    const tithis = ['প্রতিপদ', 'দ্বিতীয়া', 'তৃতীয়া', 'চতুর্থী', 'পঞ্চমী', 'ষষ্ঠী', 'সপ্তমী', 'অষ্টমী', 'নবমী', 'দশমী', 'একাদশী', 'দ্বাদশী', 'ত্রয়োদশী', 'চতুর্দশী'];
-    const nakshatras = ['পূর্ব ভাদ্রপদ', 'উত্তর ভাদ্রপদ', 'রেবতী', 'অশ্বিনী', ' ভরণী', 'কৃত্তিকা', 'রোহিণী', 'মৃগশিরা', 'আর্দ্রা', 'পুনর্বসু', 'পুষ্যা', 'অশ্লেষা', 'মঘা', 'পূর্ব ফাল্গুনী', 'উত্তর ফাল্গুনী', 'হস্তা', 'চিত্রা', 'স্বাতী', 'বিশাখা', 'অনুরাধা', 'জ্যেষ্ঠা', 'মূলা', 'পূর্বাষাঢ়া', 'উত্তরাষাঢ়া', 'শ্রবণা', 'ধনিষ্ঠা', 'শতভিষা'];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const generatedData: PanchangDate[] = Array.from({ length: daysInMonth }, (_, i) => {
-        const bengaliDate = i + 1;
-        const currentDate = convertBengaliToGregorian(bengaliYear, bengaliMonthIndex, bengaliDate);
-        currentDate.setHours(0, 0, 0, 0);
-
-        const isToday = currentDate.getTime() === today.getTime();
-
-        // Simplified moon phase and tithi calculation
-        const dayOfMonth = i + 1;
-        let moonPhase: PanchangDate['moonPhase'] = dayOfMonth <= 15 ? 'কৃষ্ণপক্ষ' : 'শুক্লপক্ষ';
-        let tithiName = '';
-        
-        const purnimaDay = 15;
-        const amavasyaDay = daysInMonth;
-
-        if (dayOfMonth === purnimaDay) {
-            tithiName = 'পূর্ণিমা';
-            moonPhase = 'পূর্ণিমা';
-        } else if (dayOfMonth === amavasyaDay) {
-            tithiName = 'অমাবস্যা';
-            moonPhase = 'অমাবস্যা';
-        } else if (dayOfMonth > purnimaDay) {
-            // Shukla Paksha
-            tithiName = tithis[(dayOfMonth - purnimaDay -1) % 14];
-        } else {
-            // Krishna Paksha
-            tithiName = tithis[(dayOfMonth-1) % 14];
-        }
-
-        let events: string[] = [];
-        if (tithiName === 'একাদশী') events.push('একাদশী');
-        if (moonPhase === 'পূর্ণিমা') events.push('পূর্ণিমা');
-        if (moonPhase === 'অমাবস্যা') events.push('অমাবস্যা');
-
-        // Sample Events (for demonstration)
-        if (bengaliMonthIndex === 5 && bengaliYear === 1431) { // Ashwin 1431
-            if (i + 1 === 1) events.push('বিশ্বকর্মা পূজা');
-            if (i + 1 === 15) events.push('মহালয়া');
-            if (i + 1 >= 22 && i + 1 <= 26) {
-                const pujaDays = ['ষষ্ঠী', 'সপ্তমী', 'অষ্টমী', 'নবমী', 'দশমী'];
-                events.push(`দুর্গাপূজা - ${pujaDays[i - 21]}`);
-            }
-            if (i + 1 === 30) events.push('লক্ষ্মী পূজা');
-        }
-        if (bengaliMonthIndex === 0 && i === 0) { // Baishakh
-            events.push('নববর্ষ');
-        }
-
+    return aashar1432Data.map(dayData => {
+        const gregorianDateObj = new Date(dayData.gregorianYear, dayData.gregorianMonth, dayData.gregorianDate);
+        gregorianDateObj.setHours(0, 0, 0, 0);
 
         return {
-            gregorianDate: currentDate.getDate(),
-            gregorianMonth: currentDate.getMonth(),
-            gregorianYear: currentDate.getFullYear(),
-            bengaliDate: bengaliDate,
+            ...dayData,
             bengaliMonth: BENGALI_MONTHS[bengaliMonthIndex],
             bengaliMonthIndex: bengaliMonthIndex,
             bengaliYear: bengaliYear,
-            bengaliWeekday: BENGALI_WEEKDAYS[currentDate.getDay()],
-            tithi: { name: tithiName, endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
-            nakshatra: { name: nakshatras[(currentDate.getDate() + currentDate.getMonth()*30) % 27], endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
-            moonPhase: moonPhase,
-            events: events,
-            isToday: isToday,
+            bengaliWeekday: BENGALI_WEEKDAYS[gregorianDateObj.getDay()],
+            isToday: gregorianDateObj.getTime() === today.getTime(),
         };
     });
-
-    return generatedData;
 };
 
 export function getTodaysBengaliDate(): TodayInfo | null {
+  // Since the hardcoded data is for June/July 2025, we'll check if today is in that range.
   const today = new Date();
-  const bengaliInfo = convertGregorianToBengali(today);
+  const todayTime = today.getTime();
 
-  return {
-    bengaliYear: bengaliInfo.year,
-    bengaliMonthIndex: bengaliInfo.month,
-    bengaliDate: bengaliInfo.day,
+  for (const day of aashar1432Data) {
+      const dayTime = new Date(day.gregorianYear, day.gregorianMonth, day.gregorianDate).getTime();
+      if (dayTime === todayTime) {
+          return {
+              bengaliYear: 1432,
+              bengaliMonthIndex: 2,
+              bengaliDate: day.bengaliDate,
+          };
+      }
   }
+  
+  // Fallback for dates outside the hardcoded range.
+  // This can be replaced with a proper conversion formula later.
+  return {
+    bengaliYear: 1432,
+    bengaliMonthIndex: 2, // Aashar
+    bengaliDate: 1,
+  };
 }
 
 export const getMonthData = (bengaliYear: number, bengaliMonthIndex: number): PanchangDate[] => {

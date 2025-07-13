@@ -11,8 +11,9 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  const [currentBengaliMonthIndex, setCurrentBengaliMonthIndex] = useState(0); 
-  const [currentBengaliYear, setCurrentBengaliYear] = useState(1431);
+  // Set initial state to Aashar 1432 as per the user's image
+  const [currentBengaliMonthIndex, setCurrentBengaliMonthIndex] = useState(2); 
+  const [currentBengaliYear, setCurrentBengaliYear] = useState(1432);
   const [monthData, setMonthData] = useState<PanchangDate[]>([]);
   const [selectedDate, setSelectedDate] = useState<PanchangDate | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -21,31 +22,34 @@ export default function Home() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
+    // This effect will run once on mount to set the initial view
     const todaysBengaliDate = getTodaysBengaliDate();
     if (todaysBengaliDate) {
       setCurrentBengaliMonthIndex(todaysBengaliDate.bengaliMonthIndex);
       setCurrentBengaliYear(todaysBengaliDate.bengaliYear);
-    } else {
-      // Fallback to a default if today's date can't be determined
-      setCurrentBengaliMonthIndex(5); // Ashwin
-      setCurrentBengaliYear(1431);
     }
   }, []);
 
   useEffect(() => {
-    if (currentBengaliYear === 0) return; // Don't fetch data until year is set
-    
     setIsLoading(true);
     const data = getMonthData(currentBengaliYear, currentBengaliMonthIndex);
     setMonthData(data);
     
+    // Select today's date if it exists in the current month's data
     const today = data.find(d => d.isToday);
     if (today) {
       setSelectedDate(today);
-    } else if (data.length > 0) {
-      // Select the first day of the month by default if today is not in the dataset
-      const previouslySelected = data.find(d => d.bengaliDate === selectedDate?.bengaliDate);
+    } else if (selectedDate) {
+      // If a date was previously selected, try to find it in the new month data
+      const previouslySelected = data.find(d => 
+        d.bengaliDate === selectedDate.bengaliDate && 
+        d.gregorianMonth === selectedDate.gregorianMonth &&
+        d.gregorianYear === selectedDate.gregorianYear
+      );
       setSelectedDate(previouslySelected || data[0]);
+    } else if (data.length > 0) {
+      // Otherwise, default to the first day of the month
+      setSelectedDate(data[0]);
     }
     setIsLoading(false);
   }, [currentBengaliYear, currentBengaliMonthIndex]);
