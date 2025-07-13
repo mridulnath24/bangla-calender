@@ -1,4 +1,4 @@
-import type { PanchangDate } from './types';
+import type { PanchangDate, TodayInfo } from './types';
 import { BENGALI_WEEKDAYS, BENGALI_MONTHS } from './bengali-helpers';
 
 // Helper function to check if a year is a leap year
@@ -27,8 +27,11 @@ const BENGALI_MONTH_DAYS = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
 const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): PanchangDate[] => {
   // Determine the Gregorian year for the start of the Bengali month
   // Bengali year starts mid-April, so for months Magh-Chaitra, it's the next Gregorian year
-  const gregorianYear = bengaliMonthIndex >= 9 ? bengaliYear + 594 : bengaliYear + 593;
-
+  let gregorianYear = bengaliYear + 593;
+  if (bengaliMonthIndex >= 9) {
+    gregorianYear += 1;
+  }
+  
   const start = BENGALI_MONTH_GREGORIAN_START[bengaliMonthIndex];
   
   // Adjust Falgun for leap years
@@ -39,16 +42,16 @@ const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): Panc
   const daysInMonth = monthLengths[bengaliMonthIndex];
 
   // This is an approximation. A real panchang requires complex astronomical calculations.
-  const startDate = new Date(gregorianYear, start.month, start.day);
+  const startDate = new Date(Date.UTC(gregorianYear, start.month, start.day));
   
   const tithis = ['প্রতিপদ', 'দ্বিতীয়া', 'তৃতীয়া', 'চতুর্থী', 'পঞ্চমী', 'ষষ্ঠী', 'সপ্তমী', 'অষ্টমী', 'নবমী', 'দশমী', 'একাদশী', 'দ্বাদশী', 'ত্রয়োদশী', 'চতুর্দশী'];
   const nakshatras = ['পূর্ব ভাদ্রপদ', 'উত্তর ভাদ্রপদ', 'রেবতী', 'অশ্বিনী', ' ভরণী', 'কৃত্তিকা', 'রোহিণী', 'মৃগশিরা', 'আর্দ্রা', 'পুনর্বসু', 'পুষ্যা', 'অশ্লেষা', 'মঘা', 'পূর্ব ফাল্গুনী', 'উত্তর ফাল্গুনী', 'হস্তা', 'চিত্রা', 'স্বাতী', 'বিশাখা', 'অনুরাধা', 'জ্যেষ্ঠা', 'মূলা', 'পূর্বাষাঢ়া', 'উত্তরাষাঢ়া', 'শ্রবণা', 'ধনিষ্ঠা', 'শতভিষা'];
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize today's date
+  today.setUTCHours(0, 0, 0, 0); // Normalize today's date to UTC
 
   const generatedData: PanchangDate[] = Array.from({ length: daysInMonth }, (_, i) => {
     const currentDate = new Date(startDate);
-    currentDate.setDate(startDate.getDate() + i);
+    currentDate.setUTCDate(startDate.getUTCDate() + i);
 
     const isToday = currentDate.getTime() === today.getTime();
 
@@ -98,15 +101,15 @@ const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): Panc
 
 
     return {
-      gregorianDate: currentDate.getDate(),
-      gregorianMonth: currentDate.getMonth(),
-      gregorianYear: currentDate.getFullYear(),
+      gregorianDate: currentDate.getUTCDate(),
+      gregorianMonth: currentDate.getUTCMonth(),
+      gregorianYear: currentDate.getUTCFullYear(),
       bengaliDate: i + 1,
       bengaliMonth: BENGALI_MONTHS[bengaliMonthIndex],
       bengaliYear: bengaliYear,
-      bengaliWeekday: BENGALI_WEEKDAYS[currentDate.getDay()],
+      bengaliWeekday: BENGALI_WEEKDAYS[currentDate.getUTCDay()],
       tithi: { name: tithiName, endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
-      nakshatra: { name: nakshatras[(currentDate.getDate() + currentDate.getMonth()*30) % 27], endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
+      nakshatra: { name: nakshatras[(currentDate.getUTCDate() + currentDate.getUTCMonth()*30) % 27], endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
       moonPhase: moonPhase,
       events: events,
       isToday: isToday,
@@ -115,6 +118,49 @@ const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): Panc
 
   return generatedData;
 };
+
+export function getTodaysBengaliDate(): TodayInfo | null {
+  const today = new Date();
+  const gregorianYear = today.getFullYear();
+  const gregorianMonth = today.getMonth();
+  const gregorianDate = today.getDate();
+
+  // Find which Bengali month it is
+  for (let i = 0; i < BENGALI_MONTHS.length; i++) {
+    const monthData = generateMonthData(gregorianYear - 593, i);
+    const todayData = monthData.find(d => 
+      d.gregorianYear === gregorianYear &&
+      d.gregorianMonth === gregorianMonth &&
+      d.gregorianDate === gregorianDate
+    );
+    if (todayData) {
+      return {
+        bengaliYear: todayData.bengaliYear,
+        bengaliMonthIndex: i,
+        bengaliDate: todayData.bengaliDate,
+      }
+    }
+  }
+
+  // Check previous bengali year if not found (for early months of gregorian year)
+   for (let i = 0; i < BENGALI_MONTHS.length; i++) {
+    const monthData = generateMonthData(gregorianYear - 594, i);
+    const todayData = monthData.find(d => 
+      d.gregorianYear === gregorianYear &&
+      d.gregorianMonth === gregorianMonth &&
+      d.gregorianDate === gregorianDate
+    );
+    if (todayData) {
+      return {
+        bengaliYear: todayData.bengaliYear,
+        bengaliMonthIndex: i,
+        bengaliDate: todayData.bengaliDate,
+      }
+    }
+  }
+
+  return null; // Should not happen with the logic above
+}
 
 
 export const getMonthData = (bengaliYear: number, bengaliMonthIndex: number): PanchangDate[] => {

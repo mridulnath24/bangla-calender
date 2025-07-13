@@ -101,26 +101,25 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
             <button
               key={date.bengaliDate}
               onClick={() => onDateSelect(date)}
-              aria-pressed={selectedDate.bengaliDate === date.bengaliDate}
+              aria-pressed={selectedDate.bengaliDate === date.bengaliDate && selectedDate.bengaliMonth === date.bengaliMonth}
               className={cn(
                 "relative flex flex-col items-center justify-start p-1.5 border-2 rounded-lg transition-all duration-200 text-left h-16 md:h-24 overflow-hidden",
                 "focus:outline-none focus:ring-2 focus:ring-ring focus:z-10",
                 {
                   "bg-accent text-accent-foreground border-accent": selectedDate.bengaliDate === date.bengaliDate && selectedDate.bengaliMonth === date.bengaliMonth,
-                  "hover:bg-primary/10 dark:hover:bg-primary/20": !(selectedDate.bengaliDate === date.bengaliDate && selectedDate.bengaliMonth === date.bengaliMonth),
-                  "border-primary": date.isToday,
-                  "border-transparent": !date.isToday && !(selectedDate.bengaliDate === date.bengaliDate && selectedDate.bengaliMonth === date.bengaliMonth),
+                  "bg-primary/20 border-primary text-primary-foreground": date.isToday,
+                  "hover:bg-primary/10 dark:hover:bg-primary/20 border-transparent": !(selectedDate.bengaliDate === date.bengaliDate && selectedDate.bengaliMonth === date.bengaliMonth) && !date.isToday,
                 }
               )}
             >
-              <span className={cn("text-lg md:text-xl font-headline", {"text-primary": date.isToday && !(selectedDate.bengaliDate === date.bengaliDate && selectedDate.bengaliMonth === date.bengaliMonth)})}>{toBengaliNumber(date.bengaliDate)}</span>
-              <span className="text-xs text-muted-foreground">{date.gregorianDate}</span>
+              <span className={cn("text-lg md:text-xl font-headline", {"text-primary-foreground": date.isToday, "text-primary": !date.isToday})}>{toBengaliNumber(date.bengaliDate)}</span>
+              <span className={cn("text-xs", {"text-muted-foreground": !date.isToday, "text-primary-foreground/80": date.isToday})}>{date.gregorianDate}</span>
               <div className="absolute bottom-1 right-1 flex flex-col items-end gap-1 md:bottom-2 md:right-2">
                 {date.events.some(e => e.includes('পূর্ণিমা') || e.includes('অমাবস্যা') || e.includes('একাদশী')) &&
                     <div className="w-1.5 h-1.5 rounded-full bg-accent" title="বিশেষ তিথি"></div>
                 }
                 {date.events.some(e => !e.includes('পূর্ণিমা') && !e.includes('অমাবস্যা') && !e.includes('একাদশী') && e.length > 0) &&
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" title="উৎসব"></div>
+                    <div className={cn("w-1.5 h-1.5 rounded-full", { "bg-primary-foreground": date.isToday, "bg-primary": !date.isToday})} title="উৎসব"></div>
                 }
               </div>
             </button>

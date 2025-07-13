@@ -12,3 +12,9 @@ export interface PanchangDate {
   events: string[];
   isToday: boolean;
 }
+
+export interface TodayInfo {
+    bengaliYear: number;
+    bengaliMonthIndex: number;
+    bengaliDate: number;
+}

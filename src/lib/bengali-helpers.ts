@@ -4,11 +4,11 @@ export const BENGALI_MONTHS = [
 ];
 
 export const BENGALI_WEEKDAYS = [
-  'রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'
+  'শনিবার', 'রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 'বৃহস্পতিবার', 'শুক্রবার'
 ];
 
 export const BENGALI_WEEKDAYS_SHORT = [
-  'রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি'
+  'শনি', 'রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র'
 ];
 
 export const toBengaliNumber = (num: number | string): string => {
