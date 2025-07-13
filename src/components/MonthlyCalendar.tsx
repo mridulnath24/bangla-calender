@@ -129,7 +129,7 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
                 {
                   "bg-accent text-accent-foreground border-accent": isSameDay(selectedDate, date),
                   "border-primary text-primary-foreground bg-primary/80": date.isToday,
-                  "hover:bg-primary/10 dark:hover:bg-primary/20 border-transparent": !isSameDay(selectedDate, date) && !date.isToday,
+                  "hover:bg-primary/10 dark:hover:bg-primary/20 border-transparent hover:scale-105 hover:shadow-md": !isSameDay(selectedDate, date) && !date.isToday,
                 }
               )}
             >
