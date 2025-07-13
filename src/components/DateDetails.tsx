@@ -145,10 +145,8 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
   
   const fullBengaliDateHeader = `${date.bengaliMonth} ${toBengaliNumber(date.bengaliDate)}, ${toBengaliNumber(date.bengaliYear)}, ${date.bengaliWeekday}`;
   
-  // Create a reliable, standardized date string.
-  const gregorianDateForDisplay = new Date(date.gregorianYear, date.gregorianMonth, date.gregorianDate).toLocaleDateString('en-US', {
-    year: 'numeric', month: 'long', day: 'numeric'
-  });
+  const gregorianMonthName = MONTH_NAMES[date.gregorianMonth];
+  const gregorianDateForDisplay = `${gregorianMonthName} ${date.gregorianDate}, ${date.gregorianYear}`;
   
   useEffect(() => {
     // Reset when the date changes
@@ -167,7 +165,6 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
       const bengaliDateForAI = `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`;
       
       // Standardize the Gregorian date format for the AI
-      const gregorianMonthName = MONTH_NAMES[date.gregorianMonth];
       const gregorianDateForAI = `${gregorianMonthName} ${date.gregorianDate}, ${date.gregorianYear}`;
 
       const result = await bengaliInsightsFlow({
@@ -176,8 +173,8 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
       });
       setDetails(result);
     } catch (e: any) {
-      if (e.message && e.message.includes('API key not valid')) {
-          setError('The AI feature is not configured correctly. Please ensure the GOOGLE_API_KEY environment variable is set in your deployment.');
+      if (e.message && (e.message.includes('API key not valid') || e.message.includes('[GoogleGenerativeAI Error]: API key not found'))) {
+          setError('AI বৈশিষ্ট্যটি কনফিগার করা নেই। অনুগ্রহ করে আপনার হোস্টিং প্রদানকারীর (उदा. Vercel) সেটিংসে GOOGLE_API_KEY এনভায়রনমেন্ট ভেরিয়েবল সেট করুন।');
       } else {
         setError('তথ্য আনতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
       }
