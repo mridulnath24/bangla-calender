@@ -14,27 +14,44 @@ const LoadingSkeleton = () => (
     <div className="flex flex-col min-h-screen bg-background">
         <header className="sticky top-0 z-40 w-full border-b bg-background/95">
             <div className="container flex h-16 items-center justify-between">
-                <Skeleton className="h-8 w-32" />
-                <Skeleton className="h-8 w-8 rounded-full" />
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-8 w-8" />
+                  <Skeleton className="h-8 w-32" />
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="hidden md:flex flex-col items-end gap-1">
+                      <Skeleton className="h-4 w-40" />
+                      <Skeleton className="h-4 w-32" />
+                  </div>
+                  <Skeleton className="h-9 w-9 rounded-full" />
+                </div>
             </div>
         </header>
         <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
             <div className="lg:grid lg:grid-cols-3 lg:gap-8">
                 <div className="lg:col-span-2">
                     <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                            <Skeleton className="h-10 w-24" />
+                        <div className="flex justify-between items-center p-2">
+                            <Skeleton className="h-10 w-10" />
                             <div className="flex gap-2">
                                 <Skeleton className="h-10 w-32" />
                                 <Skeleton className="h-10 w-24" />
                             </div>
-                            <Skeleton className="h-10 w-24" />
+                            <Skeleton className="h-10 w-10" />
                         </div>
-                        <Skeleton className="h-[400px] w-full" />
+                        <Skeleton className="h-[480px] w-full" />
                     </div>
                 </div>
                 <div className="hidden lg:block">
-                    <Skeleton className="h-[500px] w-full" />
+                     <div className="p-6 flex flex-col gap-6 items-center text-center border-2 border-dashed rounded-lg m-4 mt-0">
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <div className="space-y-2 w-full">
+                            <Skeleton className="h-6 w-3/4 mx-auto" />
+                            <Skeleton className="h-4 w-full" />
+                             <Skeleton className="h-4 w-5/6 mx-auto" />
+                        </div>
+                        <Skeleton className="h-12 w-full" />
+                    </div>
                 </div>
             </div>
         </main>
@@ -80,7 +97,8 @@ export default function Home() {
         }
     }
     
-    setIsLoading(false);
+    // Artificial delay to show loading skeleton
+    setTimeout(() => setIsLoading(false), 500);
   }, [currentBengaliYear, currentBengaliMonthIndex, selectedDate]);
 
   const handleDateSelect = (date: PanchangDate) => {
@@ -107,7 +125,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <Header today={today} />
-      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
+      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 animate-fade-in-up">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           <div className="lg:col-span-2">
             <MonthlyCalendar

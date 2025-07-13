@@ -126,7 +126,7 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
                 "relative flex flex-col items-center justify-start p-1.5 border-2 rounded-lg transition-all duration-200 text-left h-16 md:h-24 overflow-hidden",
                 "focus:outline-none focus:ring-2 focus:ring-ring focus:z-10",
                 {
-                  "bg-accent text-accent-foreground border-accent": isSameDay(selectedDate, date),
+                  "bg-accent text-accent-foreground border-accent animate-pop-in": isSameDay(selectedDate, date),
                   "border-primary text-primary-foreground bg-primary/80": date.isToday,
                   "hover:bg-primary/10 dark:hover:bg-primary/20 border-transparent": !isSameDay(selectedDate, date) && !date.isToday,
                 }

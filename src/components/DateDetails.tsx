@@ -10,30 +10,31 @@ import { X, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getBengaliInsights, BengaliInsightsOutput } from '@/ai/flows/bengali-insights';
 import { Skeleton } from './ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface DateDetailsProps {
   date: PanchangDate;
   onClose?: () => void;
 }
 
-const DetailRow = ({ label, value }: { label: string, value: string | undefined }) => (
-  <div className="flex justify-between items-center text-sm">
+const DetailRow = ({ label, value, className }: { label: string, value: string | undefined, className?: string }) => (
+  <div className={cn("flex justify-between items-center text-sm", className)}>
     <span className="text-muted-foreground">{label}</span>
     <span className="font-medium text-right">{value || '-'}</span>
   </div>
 );
 
-const PanchangSection = ({ title, details }: { title: string, details: BengaliInsightsOutput['drikSiddha'] | undefined }) => {
+const PanchangSection = ({ title, details, className }: { title: string, details: BengaliInsightsOutput['drikSiddha'] | undefined, className?: string }) => {
     if (!details) {
         return (
-            <div className="space-y-4">
+            <div className={cn("space-y-4", className)}>
                  <h3 className="font-headline text-lg text-primary text-center">{title}</h3>
                  <p className="text-sm text-muted-foreground text-center">তথ্য পাওয়া যায়নি।</p>
             </div>
         )
     }
     return (
-        <div className="space-y-4">
+        <div className={cn("space-y-4", className)}>
             <h3 className="font-headline text-lg text-primary text-center">{title}</h3>
             <div className="space-y-2 text-sm">
                 <p><span className="font-semibold">তিথি:</span> {details.tithi}</p>
@@ -60,7 +61,7 @@ const PanchangSection = ({ title, details }: { title: string, details: BengaliIn
 
 const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
   <CardContent className="space-y-6 p-4">
-    <div className="bg-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs p-3 text-center rounded-lg">
+    <div className="bg-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs p-3 text-center rounded-lg animate-fade-in-up" style={{ animationDelay: '100ms' }}>
       <div className="flex flex-col items-center justify-center gap-1">
         <SunriseIcon className="h-6 w-6" />
         <div><strong>সূর্যোদয়</strong><p>{details.sunrise}</p></div>
@@ -79,21 +80,21 @@ const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
       </div>
     </div>
     
-    <div className="space-y-2">
+    <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
       <DetailRow label="বিক্রম সম্বৎ" value={details.vikramSamvat} />
       <DetailRow label="শক সংবৎ" value={details.sakaSamvat} />
       <DetailRow label="ভারতীয় সিভিল" value={details.indianCivilDate} />
     </div>
-    <Separator />
-    <div className="space-y-2">
+    <Separator className="animate-fade-in-up" style={{ animationDelay: '250ms' }}/>
+    <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
       <DetailRow label="চন্দ্র রাশি" value={details.chandraRashi} />
       <DetailRow label="সূর্য রাশি" value={details.suryaRashi} />
     </div>
-    <Separator />
-
+    
     {details.culturalSignificance && (
       <>
-        <div className="space-y-3 text-center">
+        <Separator className="animate-fade-in-up" style={{ animationDelay: '350ms' }} />
+        <div className="space-y-3 text-center animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <h3 className="font-semibold text-lg font-headline text-primary">সাংস্কৃতিক তথ্য</h3>
             <Card className="bg-primary/5 border-primary/20 text-left">
               <CardContent className="p-4">
@@ -101,13 +102,13 @@ const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
               </CardContent>
             </Card>
         </div>
-        <Separator />
       </>
     )}
-
-    <PanchangSection title="দৃকসিদ্ধ" details={details.drikSiddha} />
-    <Separator />
-    <PanchangSection title="সূর্য সিদ্ধান্ত" details={details.suryaSiddhanta} />
+    
+    <Separator className="animate-fade-in-up" style={{ animationDelay: '500ms' }} />
+    <PanchangSection title="দৃকসিদ্ধ" details={details.drikSiddha} className="animate-fade-in-up" style={{ animationDelay: '600ms' }} />
+    <Separator className="animate-fade-in-up" style={{ animationDelay: '700ms' }} />
+    <PanchangSection title="সূর্য সিদ্ধান্ত" details={details.suryaSiddhanta} className="animate-fade-in-up" style={{ animationDelay: '800ms' }} />
   </CardContent>
 );
 
