@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export const ShubhoDinIcon = ({ className }: { className?: string }) => (
+export const BengaliCalendarIcon = ({ className }: { className?: string }) => (
     <svg 
         width="32" 
         height="32" 

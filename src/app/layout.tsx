@@ -4,7 +4,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'শুভ দিন | Bengali Calendar',
+  title: 'বাংলা ক্যালেন্ডার | Bengali Calendar',
   description: 'A modern and feature-rich Bengali calendar web application.',
 };
 
