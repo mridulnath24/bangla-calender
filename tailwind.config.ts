@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Hind Siliguri', 'sans-serif'],
-        headline: ['Literata', 'serif'],
+        body: ['Noto Sans Bengali', 'sans-serif'],
+        headline: ['Tiro Bangla', 'serif'],
         code: ['monospace'],
       },
       colors: {
