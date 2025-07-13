@@ -15,15 +15,13 @@ interface HeaderProps {
 }
 
 export default function Header({ today }: HeaderProps) {
-  const [currentTime, setCurrentTime] = useState('');
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString('en-US'));
+      setCurrentTime(new Date());
     }, 1000);
-
-    // Set initial time to avoid a blank space on first render
-    setCurrentTime(new Date().toLocaleTimeString('en-US'));
+    setCurrentTime(new Date());
     
     return () => {
       clearInterval(timer);
@@ -48,7 +46,7 @@ export default function Header({ today }: HeaderProps) {
                 {currentTime && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                         <Clock className="h-4 w-4" />
-                        <span className="font-mono">{currentTime}</span>
+                        <span className="font-mono text-xs">{currentTime.toLocaleTimeString('en-US')}</span>
                     </div>
                 )}
             </div>

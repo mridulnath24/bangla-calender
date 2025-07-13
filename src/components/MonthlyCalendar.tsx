@@ -47,7 +47,6 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
   const startingDayOfWeek = getWeekdayIndex(monthData[0].bengaliWeekday);
   const emptyDays = Array.from({ length: startingDayOfWeek < 0 ? 0 : startingDayOfWeek });
   
-  // Create a wider range of years for selection
   const years = Array.from({ length: 41 }, (_, i) => 1410 + i);
 
   const handlePrevMonth = () => {
@@ -76,14 +75,14 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
 
   return (
     <Card className="overflow-hidden shadow-lg bg-card">
-      <CardHeader className="text-center bg-primary/10">
+      <CardHeader className="text-center bg-primary/10 p-2 md:p-4">
         <div className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
+          <Button variant="ghost" size="icon" onClick={handlePrevMonth} aria-label="Previous Month">
             <ChevronLeft className="h-6 w-6" />
           </Button>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center gap-2">
             <Select value={String(bengaliMonthIndex)} onValueChange={(value) => onMonthChange(Number(value))}>
-              <SelectTrigger className="w-[150px] text-xl font-headline text-primary border-none focus:ring-0">
+              <SelectTrigger className="w-[140px] text-lg md:text-xl font-headline text-primary border-none focus:ring-0 bg-transparent">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
               <SelectContent>
@@ -93,7 +92,7 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
               </SelectContent>
             </Select>
             <Select value={String(bengaliYear)} onValueChange={(value) => onYearChange(Number(value))}>
-              <SelectTrigger className="w-[120px] text-xl font-headline text-primary border-none focus:ring-0">
+              <SelectTrigger className="w-[120px] text-lg md:text-xl font-headline text-primary border-none focus:ring-0 bg-transparent">
                 <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent>
@@ -103,7 +102,7 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
               </SelectContent>
             </Select>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleNextMonth}>
+          <Button variant="ghost" size="icon" onClick={handleNextMonth} aria-label="Next Month">
             <ChevronRight className="h-6 w-6" />
           </Button>
         </div>
@@ -128,8 +127,7 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
                 "focus:outline-none focus:ring-2 focus:ring-ring focus:z-10",
                 {
                   "bg-accent text-accent-foreground border-accent": isSameDay(selectedDate, date),
-                  "border-primary text-primary-foreground": date.isToday,
-                   "bg-primary/80": date.isToday,
+                  "border-primary text-primary-foreground bg-primary/80": date.isToday,
                   "hover:bg-primary/10 dark:hover:bg-primary/20 border-transparent": !isSameDay(selectedDate, date) && !date.isToday,
                 }
               )}

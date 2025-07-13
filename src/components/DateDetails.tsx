@@ -16,55 +16,65 @@ interface DateDetailsProps {
   onClose?: () => void;
 }
 
-const DetailRow = ({ label, value }: { label: string, value: string }) => (
+const DetailRow = ({ label, value }: { label: string, value: string | undefined }) => (
   <div className="flex justify-between items-center text-sm">
     <span className="text-muted-foreground">{label}</span>
-    <span className="font-medium text-right">{value}</span>
+    <span className="font-medium text-right">{value || '-'}</span>
   </div>
 );
 
-const PanchangSection = ({ title, details }: { title: string, details: BengaliInsightsOutput['drikSiddha'] }) => (
-    <div className="space-y-4">
-        <h3 className="font-headline text-lg text-primary text-center">{title}</h3>
-        <div className="space-y-2 text-sm">
-            <p><span className="font-semibold">তিথি:</span> {details.tithi}</p>
-            <p><span className="font-semibold">নক্ষত্র:</span> {details.nakshatra}</p>
+const PanchangSection = ({ title, details }: { title: string, details: BengaliInsightsOutput['drikSiddha'] | undefined }) => {
+    if (!details) {
+        return (
+            <div className="space-y-4">
+                 <h3 className="font-headline text-lg text-primary text-center">{title}</h3>
+                 <p className="text-sm text-muted-foreground text-center">তথ্য পাওয়া যায়নি।</p>
+            </div>
+        )
+    }
+    return (
+        <div className="space-y-4">
+            <h3 className="font-headline text-lg text-primary text-center">{title}</h3>
+            <div className="space-y-2 text-sm">
+                <p><span className="font-semibold">তিথি:</span> {details.tithi}</p>
+                <p><span className="font-semibold">নক্ষত্র:</span> {details.nakshatra}</p>
+            </div>
+            <div className="space-y-2">
+                <h4 className="font-semibold text-center text-base">অমৃতযোগ</h4>
+                <DetailRow label="দিন" value={details.amritayog.day} />
+                <DetailRow label="রাতি" value={details.amritayog.night} />
+            </div>
+            <div className="space-y-2">
+                <h4 className="font-semibold text-center text-base">মহেন্দ্রযোগ</h4>
+                <DetailRow label="দিন" value={details.mahendrayog.day} />
+            </div>
+            <div className="space-y-2 text-sm">
+                 <p><span className="font-semibold">বারবেলা:</span> {details.barabela}</p>
+                 <p><span className="font-semibold">কালবেলা:</span> {details.kalabela}</p>
+                 <p><span className="font-semibold">কালরাতি:</span> {details.kalaratri}</p>
+            </div>
         </div>
-        <div className="space-y-2">
-            <h4 className="font-semibold text-center text-base">অমৃতযোগ</h4>
-            <DetailRow label="দিন" value={details.amritayog.day} />
-            <DetailRow label="রাতি" value={details.amritayog.night} />
-        </div>
-        <div className="space-y-2">
-            <h4 className="font-semibold text-center text-base">মহেন্দ্রযোগ</h4>
-            <DetailRow label="দিন" value={details.mahendrayog.day} />
-        </div>
-        <div className="space-y-2 text-sm">
-             <p><span className="font-semibold">বারবেলা:</span> {details.barabela}</p>
-             <p><span className="font-semibold">কালবেলা:</span> {details.kalabela}</p>
-             <p><span className="font-semibold">কালরাতি:</span> {details.kalaratri}</p>
-        </div>
-    </div>
-);
+    );
+}
 
 
 const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
-  <CardContent className="space-y-4 p-4">
-    <div className="bg-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-2 text-center rounded-lg">
-      <div className="flex items-center justify-center gap-2">
-        <SunriseIcon className="h-5 w-5" />
+  <CardContent className="space-y-6 p-4">
+    <div className="bg-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs p-3 text-center rounded-lg">
+      <div className="flex flex-col items-center justify-center gap-1">
+        <SunriseIcon className="h-6 w-6" />
         <div><strong>সূর্যোদয়</strong><p>{details.sunrise}</p></div>
       </div>
-      <div className="flex items-center justify-center gap-2">
-        <SunsetIcon className="h-5 w-5" />
+      <div className="flex flex-col items-center justify-center gap-1">
+        <SunsetIcon className="h-6 w-6" />
         <div><strong>সূর্যাস্ত</strong><p>{details.sunset}</p></div>
       </div>
-      <div className="flex items-center justify-center gap-2">
-        <MoonriseIcon className="h-5 w-5" />
+      <div className="flex flex-col items-center justify-center gap-1">
+        <MoonriseIcon className="h-6 w-6" />
         <div><strong>চন্দ্রোদয়</strong><p>{details.moonrise}</p></div>
       </div>
-      <div className="flex items-center justify-center gap-2">
-        <MoonsetIcon className="h-5 w-5" />
+      <div className="flex flex-col items-center justify-center gap-1">
+        <MoonsetIcon className="h-6 w-6" />
         <div><strong>চন্দ্রাস্ত</strong><p>{details.moonset}</p></div>
       </div>
     </div>
@@ -102,15 +112,21 @@ const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
 );
 
 const LoadingSkeleton = () => (
-    <div className="p-4 space-y-4">
-        <Skeleton className="h-16 w-full" />
-        <Skeleton className="h-24 w-full" />
+    <div className="p-4 space-y-6">
+        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-12 w-full" />
         <Separator />
-        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-12 w-full" />
         <Separator />
-        <Skeleton className="h-48 w-full" />
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-1/2 mx-auto" />
+          <Skeleton className="h-24 w-full" />
+        </div>
         <Separator />
-        <Skeleton className="h-48 w-full" />
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-1/2 mx-auto" />
+          <Skeleton className="h-24 w-full" />
+        </div>
     </div>
 );
 
@@ -159,12 +175,12 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
   return (
     <ScrollArea className="h-full">
       <Card className="shadow-lg h-full border-0 lg:border relative bg-card">
-        <CardHeader className="p-0 sticky top-0 z-10 bg-card">
+        <CardHeader className="p-0 sticky top-0 z-10 bg-card/95 backdrop-blur-sm">
            <div className="bg-primary text-primary-foreground p-4 text-center relative">
                 <CardTitle className="font-headline text-xl">{fullBengaliDate}</CardTitle>
                 <p className="text-sm text-primary-foreground/80">{gregorianDate}</p>
                 {onClose && (
-                    <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground" onClick={onClose}>
+                    <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 right-2 h-8 w-8 text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground" onClick={onClose}>
                         <X className="h-5 w-5" />
                     </Button>
                 )}
@@ -178,16 +194,21 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
                 {details && <GeneratedDetails details={details} />}
             </>
         ) : (
-             <div className="p-6 flex flex-col gap-4 items-center text-center border-2 border-dashed rounded-lg m-4">
-                <Sparkles className="h-10 w-10 text-muted-foreground" />
-                <p className="text-muted-foreground">এই দিনের সম্পূর্ণ পঞ্জিকা বিবরণ দেখতে চান?</p>
+             <div className="p-6 flex flex-col gap-6 items-center text-center border-2 border-dashed rounded-lg m-4">
+                <Sparkles className="h-12 w-12 text-muted-foreground" />
+                <div className="space-y-2">
+                    <p className="text-lg font-medium text-foreground">এই দিনের সম্পূর্ণ পঞ্জিকা বিবরণ দেখুন</p>
+                    <p className="text-sm text-muted-foreground">AI-এর সাহায্যে তিথি, নক্ষত্র, শুভ ও অশুভ সময় এবং আরও অনেক কিছু জানুন।</p>
+                </div>
                  {date.events.length > 0 && (
-                    <div className="text-center">
-                        <h3 className="font-headline text-lg text-primary">উৎসব, ব্রত, উপবাস</h3>
-                        {date.events.map(event => <p key={event}>{event}</p>)}
+                    <div className="text-center w-full">
+                        <h3 className="font-headline text-lg text-primary mb-2">উৎসব ও বিশেষ দিন</h3>
+                        <div className="bg-primary/10 p-3 rounded-md">
+                        {date.events.map(event => <p key={event} className="font-medium">{event}</p>)}
+                        </div>
                     </div>
                  )}
-                <Button onClick={fetchDetails} disabled={isLoading} size="lg">
+                <Button onClick={fetchDetails} disabled={isLoading} size="lg" className="w-full">
                     <Sparkles className="mr-2 h-5 w-5" />
                     {isLoading ? 'লোড হচ্ছে...' : 'পঞ্জিকা জেনারেট করুন'}
                 </Button>
