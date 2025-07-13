@@ -125,7 +125,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <Header today={today} />
-      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8 animate-fade-in-up">
+      <main className="flex-grow container mx-auto p-4 md:p-6 lg:p-8">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
           <div className="lg:col-span-2">
             <MonthlyCalendar
