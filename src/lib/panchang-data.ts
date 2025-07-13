@@ -1,105 +1,86 @@
 import type { PanchangDate, TodayInfo } from './types';
 import { BENGALI_WEEKDAYS, BENGALI_MONTHS } from './bengali-helpers';
 
-// Revised Bengali Calendar Calculation Logic
+// The Bengali year is 593 years behind the Gregorian year.
+const BENGALI_YEAR_OFFSET = 593;
+// Pohela Boishakh is on April 14th (or 15th in a leap year before it).
+const POHELA_BOISHAKH_GREGORIAN_MONTH = 3; // April (0-indexed)
+const POHELA_BOISHAKH_GREGORIAN_DATE = 14;
 
-// The Bengali calendar has a fixed number of days in each month.
-// Baishakh to Bhadra are 31 days, and Ashwin to Chaitra are 30 days.
+// The official revised Bengali calendar used in Bangladesh has fixed month lengths.
+// This is a simpler system.
+// Baishakh to Bhadra are 31 days. Ashwin to Chaitra are 30 days.
 // Falgun has 31 days in a leap year.
 const BENGALI_MONTH_DAYS_REGULAR = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
 const BENGALI_MONTH_DAYS_LEAP =   [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 31, 30];
-
-// Bengali new year (Pohela Boishakh) is on April 14th.
-// The Bengali year is 593 years behind the Gregorian year after Pohela Boishakh.
-const BENGALI_YEAR_OFFSET = 593;
 
 // Helper to check if a Gregorian year is a leap year.
 const isGregorianLeap = (year: number): boolean => {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
 };
 
-// Helper to get number of days in a Gregorian month.
-const daysInGregorianMonth = (year: number, month: number): number => {
-    return new Date(year, month + 1, 0).getDate();
-};
-
+// Converts a Gregorian date to a Bengali date based on the revised (Bangladesh) system.
 const convertGregorianToBengali = (gregorianDate: Date): { year: number, month: number, day: number } => {
-    const gd = gregorianDate.getDate();
-    const gm = gregorianDate.getMonth() + 1; // 1-indexed
-    const gy = gregorianDate.getFullYear();
+    const gYear = gregorianDate.getFullYear();
+    const gMonth = gregorianDate.getMonth(); // 0-indexed
+    const gDay = gregorianDate.getDate();
 
-    // Bengali Year
-    let bengaliYear = gy - BENGALI_YEAR_OFFSET;
-    if (gm < 4 || (gm === 4 && gd < 14)) {
-        bengaliYear--;
-    }
+    let bYear = gYear - BENGALI_YEAR_OFFSET;
+    
+    // Determine the Gregorian date of Pohela Boishakh for the current Gregorian year.
+    // It's April 14th, but shifts to 15th if the *previous* year was a leap year in some calculations,
+    // but the most common rule is April 14th for the official Bangladesh calendar.
+    const pohelaBoishakh = new Date(gYear, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
 
-    const bengaliMonthDays = isGregorianLeap(gy) ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
-
-    // Calculate days passed in the Gregorian year until the given date.
-    let dayOfYear = 0;
-    for (let m = 0; m < gm - 1; m++) {
-        dayOfYear += daysInGregorianMonth(gy, m);
-    }
-    dayOfYear += gd;
-
-    // Pohela Boishakh is usually on April 14th. This is the 104th day of a regular year and 105th of a leap year.
-    const pohelaBoishakhDayOfYear = isGregorianLeap(gy) ? 105 : 104;
-
-    let bengaliDayOfYear;
-    if (dayOfYear >= pohelaBoishakhDayOfYear) {
-        bengaliDayOfYear = dayOfYear - pohelaBoishakhDayOfYear + 1;
-    } else {
-        // Days from previous Gregorian year's Pohela Boishakh
-        const prevYearDays = isGregorianLeap(gy - 1) ? 366 : 365;
-        const prevPohelaBoishakhDayOfYear = isGregorianLeap(gy - 1) ? 105 : 104;
-        bengaliDayOfYear = dayOfYear + (prevYearDays - prevPohelaBoishakhDayOfYear + 1);
+    if (gregorianDate < pohelaBoishakh) {
+        bYear--;
     }
     
-    let bengaliMonth = 0;
-    let bengaliDate = bengaliDayOfYear;
-
-    for (let i = 0; i < bengaliMonthDays.length; i++) {
-        const daysInMonth = bengaliMonthDays[i];
-        if (bengaliDate <= daysInMonth) {
-            bengaliMonth = i;
+    // Calculate days passed since Pohela Boishakh of the current Bengali year.
+    const bNewYearDate = new Date(bYear + BENGALI_YEAR_OFFSET, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
+    
+    const diffTime = gregorianDate.getTime() - bNewYearDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    let daysCounter = diffDays;
+    
+    const bengaliMonthDays = isGregorianLeap(bYear + BENGALI_YEAR_OFFSET + 1) ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
+    
+    let bMonth = 0;
+    for(let i=0; i < bengaliMonthDays.length; i++) {
+        if(daysCounter < bengaliMonthDays[i]) {
+            bMonth = i;
             break;
         }
-        bengaliDate -= daysInMonth;
+        daysCounter -= bengaliMonthDays[i];
     }
+    
+    const bDay = daysCounter + 1;
 
-    return { year: bengaliYear, month: bengaliMonth, day: bengaliDate };
+    return { year: bYear, month: bMonth, day: bDay };
 }
 
 const convertBengaliToGregorian = (bengaliYear: number, bengaliMonthIndex: number, bengaliDay: number): Date => {
-    let gregorianYear = bengaliYear + BENGALI_YEAR_OFFSET;
-    const pohelaBoishakhGregorianYear = gregorianYear;
+    const pohelaBoishakhGregorianYear = bengaliYear + BENGALI_YEAR_OFFSET;
 
-    const bengaliMonthDays = isGregorianLeap(pohelaBoishakhGregorianYear) ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
+    const isLeap = isGregorianLeap(pohelaBoishakhGregorianYear + 1);
+    const bengaliMonthDays = isLeap ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
 
-    let daysInBengaliYear = 0;
+    let daysPassed = bengaliDay - 1;
     for (let i = 0; i < bengaliMonthIndex; i++) {
-        daysInBengaliYear += bengaliMonthDays[i];
-    }
-    daysInBengaliYear += bengaliDay;
-
-    const pohelaBoishakhDayOfYear = isGregorianLeap(pohelaBoishakhGregorianYear) ? 105 : 104;
-    
-    let gregorianDayOfYear = daysInBengaliYear + pohelaBoishakhDayOfYear - 1;
-    
-    if (gregorianDayOfYear > (isGregorianLeap(gregorianYear) ? 366 : 365)) {
-      gregorianDayOfYear -= (isGregorianLeap(gregorianYear) ? 366 : 365);
-      gregorianYear++;
+        daysPassed += bengaliMonthDays[i];
     }
 
-    const gregorianDate = new Date(gregorianYear, 0, gregorianDayOfYear);
+    const gregorianDate = new Date(pohelaBoishakhGregorianYear, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
+    gregorianDate.setDate(gregorianDate.getDate() + daysPassed);
+
     return gregorianDate;
 };
 
 
 const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): PanchangDate[] => {
-    const pohelaBoishakhGregorianYear = bengaliYear + BENGALI_YEAR_OFFSET;
-    const monthLengths = isGregorianLeap(pohelaBoishakhGregorianYear) ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
+    const isLeap = isGregorianLeap(bengaliYear + BENGALI_YEAR_OFFSET + 1);
+    const monthLengths = isLeap ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
     const daysInMonth = monthLengths[bengaliMonthIndex];
 
     const tithis = ['প্রতিপদ', 'দ্বিতীয়া', 'তৃতীয়া', 'চতুর্থী', 'পঞ্চমী', 'ষষ্ঠী', 'সপ্তমী', 'অষ্টমী', 'নবমী', 'দশমী', 'একাদশী', 'দ্বাদশী', 'ত্রয়োদশী', 'চতুর্দশী'];
