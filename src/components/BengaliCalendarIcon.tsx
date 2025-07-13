@@ -1,54 +1,20 @@
 import { cn } from "@/lib/utils";
+import type { SVGProps } from "react";
 
-export const BengaliCalendarIcon = ({ className }: { className?: string }) => (
+export const BengaliCalendarIcon = (props: SVGProps<SVGSVGElement>) => (
     <svg
-        width="36"
-        height="36"
-        viewBox="0 0 512 512"
         xmlns="http://www.w3.org/2000/svg"
-        className={cn(className)}
-        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        className={cn("h-8 w-8", props.className)}
+        {...props}
     >
-        <defs>
-            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style={{ stopColor: '#F44336', stopOpacity: 1 }} />
-                <stop offset="100%" style={{ stopColor: '#D32F2F', stopOpacity: 1 }} />
-            </linearGradient>
-        </defs>
-        
-        {/* Main calendar body */}
-        <path d="M464 128H48c-8.8 0-16 7.2-16 16v320c0 8.8 7.2 16 16 16h416c8.8 0 16-7.2 16-16V144c0-8.8-7.2-16-16-16z" fill="#f0f0f0"/>
-        
-        {/* Header */}
-        <path d="M464 64H48C39.2 64 32 71.2 32 80v64h448V80c0-8.8-7.2-16-16-16z" fill="url(#grad1)"/>
-
-        {/* Rings */}
-        <rect x="128" y="32" width="48" height="64" rx="12" fill="#FFCA28"/>
-        <rect x="336" y="32" width="48" height="64" rx="12" fill="#FFCA28"/>
-        
-        {/* Calendar Grid */}
-        <g fill="#BDBDBD">
-            <rect x="100" y="240" width="40" height="40" rx="4"/>
-            <rect x="172" y="240" width="40" height="40" rx="4"/>
-            <rect x="236" y="240" width="40" height="40" rx="4"/>
-            <rect x="300" y="240" width="40" height="40" rx="4"/>
-            <rect x="372" y="240" width="40" height="40" rx="4"/>
-
-            <rect x="100" y="312" width="40" height="40" rx="4"/>
-            <rect x="172" y="312" width="40" height="40" rx="4"/>
-            <rect x="236" y="312" width="40" height="40" rx="4"/>
-            <rect x="300" y="312" width="40" height="40" rx="4"/>
-            <rect x="372" y="312" width="40" height="40" rx="4"/>
-
-            <rect x="100" y="384" width="40" height="40" rx="4"/>
-            <rect x="172" y="384" width="40" height="40" rx="4"/>
-        </g>
-        
-        {/* Circled Days */}
-        <circle cx="180" cy="204" r="44" fill="none" stroke="#E53935" strokeWidth="20"/>
-        <rect x="160" y="184" width="40" height="40" rx="4" fill="#f0f0f0"/>
-
-        <circle cx="340" cy="380" r="44" fill="none" stroke="#E53935" strokeWidth="20"/>
-        <rect x="320" y="360" width="40" height="40" rx="4" fill="#f0f0f0"/>
+        <path
+            fillRule="evenodd"
+            d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3A.75.75 0 0118 3v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zM5.25 6.75c-.69 0-1.25.56-1.25 1.25v11.25c0 .69.56 1.25 1.25 1.25h13.5c.69 0 1.25-.56 1.25-1.25V8c0-.69-.56-1.25-1.25-1.25H5.25z"
+            clipRule="evenodd"
+        />
+        <path d="M10.5 12a.75.75 0 00-1.5 0v.75h.75a.75.75 0 00.75-.75zm.75.75a.75.75 0 01.75-.75h.75v1.5h-.75a.75.75 0 01-.75-.75zm3.75-3a.75.75 0 00-1.5 0v.75h.75a.75.75 0 00.75-.75zm.75.75a.75.75 0 01.75-.75h.75v1.5h-.75a.75.75 0 01-.75-.75zM8.25 15a.75.75 0 01.75-.75h.75v1.5H9a.75.75 0 01-.75-.75zm1.5.75a.75.75 0 000-1.5h-.75v1.5h.75zm.75-1.5a.75.75 0 01.75-.75h.75v1.5h-.75a.75.75 0 01-.75-.75zm1.5.75a.75.75 0 000-1.5h-.75v1.5h.75zm.75-1.5a.75.75 0 01.75-.75h.75v1.5h-.75a.75.75 0 01-.75-.75zm1.5.75a.75.75 0 000-1.5h-.75v1.5h.75zM8.25 9.75a.75.75 0 01.75-.75h.75v1.5H9a.75.75 0 01-.75-.75zm1.5.75a.75.75 0 000-1.5h-.75v1.5h.75z" />
+        <path d="M9 3.75A.75.75 0 019.75 3h.75v1.5H9.75A.75.75 0 019 3.75zm3 .75A.75.75 0 0012 3h.75v1.5h-.75A.75.75 0 0012 4.5zm2.25-.75a.75.75 0 01.75-.75h.75v1.5h-.75a.75.75 0 01-.75-.75z"/>
     </svg>
 );
