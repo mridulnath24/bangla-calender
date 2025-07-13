@@ -62,7 +62,7 @@ const PanchangSection = ({ title, details, className }: { title: string, details
 
 const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
   <CardContent className="space-y-6 p-4">
-    <div className="bg-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs p-3 text-center rounded-lg animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+    <div className="bg-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs p-3 text-center rounded-lg">
       <div className="flex flex-col items-center justify-center gap-1">
         <SunriseIcon className="h-6 w-6" />
         <div><strong>সূর্যোদয়</strong><p>{details.sunrise}</p></div>
@@ -81,21 +81,21 @@ const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
       </div>
     </div>
     
-    <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+    <div className="space-y-2">
       <DetailRow label="বিক্রম সম্বৎ" value={details.vikramSamvat} />
       <DetailRow label="শক সংবৎ" value={details.sakaSamvat} />
       <DetailRow label="ভারতীয় সিভিল" value={details.indianCivilDate} />
     </div>
-    <Separator className="animate-fade-in-up" style={{ animationDelay: '250ms' }}/>
-    <div className="space-y-2 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+    <Separator />
+    <div className="space-y-2">
       <DetailRow label="চন্দ্র রাশি" value={details.chandraRashi} />
       <DetailRow label="সূর্য রাশি" value={details.suryaRashi} />
     </div>
     
     {details.culturalSignificance && (
       <>
-        <Separator className="animate-fade-in-up" style={{ animationDelay: '350ms' }} />
-        <div className="space-y-3 text-center animate-fade-in-up" style={{ animationDelay: '400ms' }}>
+        <Separator />
+        <div className="space-y-3 text-center">
           <h3 className="font-semibold text-lg font-headline text-primary">সাংস্কৃতিক তথ্য</h3>
             <Card className="bg-primary/5 border-primary/20 text-left">
               <CardContent className="p-4">
@@ -106,10 +106,10 @@ const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
       </>
     )}
     
-    <Separator className="animate-fade-in-up" style={{ animationDelay: '500ms' }} />
-    <PanchangSection title="দৃকসিদ্ধ" details={details.drikSiddha} className="animate-fade-in-up" style={{ animationDelay: '600ms' }} />
-    <Separator className="animate-fade-in-up" style={{ animationDelay: '700ms' }} />
-    <PanchangSection title="সূর্য সিদ্ধান্ত" details={details.suryaSiddhanta} className="animate-fade-in-up" style={{ animationDelay: '800ms' }} />
+    <Separator />
+    <PanchangSection title="দৃকসিদ্ধ" details={details.drikSiddha} />
+    <Separator />
+    <PanchangSection title="সূর্য সিদ্ধান্ত" details={details.suryaSiddhanta} />
   </CardContent>
 );
 
