@@ -28,8 +28,6 @@ const convertGregorianToBengali = (gregorianDate: Date): { year: number, month: 
     let bYear = gYear - BENGALI_YEAR_OFFSET;
     
     // Determine the Gregorian date of Pohela Boishakh for the current Gregorian year.
-    // It's April 14th, but shifts to 15th if the *previous* year was a leap year in some calculations,
-    // but the most common rule is April 14th for the official Bangladesh calendar.
     const pohelaBoishakh = new Date(gYear, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
 
     if (gregorianDate < pohelaBoishakh) {
@@ -39,23 +37,22 @@ const convertGregorianToBengali = (gregorianDate: Date): { year: number, month: 
     // Calculate days passed since Pohela Boishakh of the current Bengali year.
     const bNewYearDate = new Date(bYear + BENGALI_YEAR_OFFSET, POHELA_BOISHAKH_GREGORIAN_MONTH, POHELA_BOISHAKH_GREGORIAN_DATE);
     
+    // Calculate difference in days. Add 1 to be inclusive of the start day.
     const diffTime = gregorianDate.getTime() - bNewYearDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    let daysCounter = diffDays;
+    let daysSinceBoishakh = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     const bengaliMonthDays = isGregorianLeap(bYear + BENGALI_YEAR_OFFSET + 1) ? BENGALI_MONTH_DAYS_LEAP : BENGALI_MONTH_DAYS_REGULAR;
     
     let bMonth = 0;
     for(let i=0; i < bengaliMonthDays.length; i++) {
-        if(daysCounter < bengaliMonthDays[i]) {
+        if(daysSinceBoishakh < bengaliMonthDays[i]) {
             bMonth = i;
             break;
         }
-        daysCounter -= bengaliMonthDays[i];
+        daysSinceBoishakh -= bengaliMonthDays[i];
     }
     
-    const bDay = daysCounter + 1;
+    const bDay = daysSinceBoishakh + 1;
 
     return { year: bYear, month: bMonth, day: bDay };
 }
