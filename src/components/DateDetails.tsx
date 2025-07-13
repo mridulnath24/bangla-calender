@@ -1,3 +1,4 @@
+
 "use client"
 import type { PanchangDate } from '@/lib/types';
 import { toBengaliNumber } from '@/lib/bengali-helpers';
@@ -138,7 +139,7 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
   const [error, setError] = useState('');
   const [isFetched, setIsFetched] = useState(false);
   
-  const fullBengaliDate = `${date.bengaliMonth} ${toBengaliNumber(date.bengaliDate)}, ${toBengaliNumber(date.bengaliYear)}, ${date.bengaliWeekday}`;
+  const fullBengaliDateHeader = `${date.bengaliMonth} ${toBengaliNumber(date.bengaliDate)}, ${toBengaliNumber(date.bengaliYear)}, ${date.bengaliWeekday}`;
   const gregorianDate = new Date(date.gregorianYear, date.gregorianMonth, date.gregorianDate).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
@@ -157,8 +158,9 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
     setDetails(null);
     setIsFetched(true);
     try {
+      const bengaliDateForAI = `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`;
       const result = await getBengaliInsights({
-          bengaliDate: `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`,
+          bengaliDate: bengaliDateForAI,
           gregorianDate: gregorianDate
       });
       setDetails(result);
@@ -178,7 +180,7 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
       <Card className="shadow-lg h-full border-0 lg:border relative bg-card">
         <CardHeader className="p-0 sticky top-0 z-10 bg-card/95 backdrop-blur-sm">
            <div className="bg-primary text-primary-foreground p-4 text-center relative">
-                <CardTitle className="font-headline text-xl">{fullBengaliDate}</CardTitle>
+                <CardTitle className="font-headline text-xl">{fullBengaliDateHeader}</CardTitle>
                 <p className="text-sm text-primary-foreground/80">{gregorianDate}</p>
                 {onClose && (
                     <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 right-2 h-8 w-8 text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground" onClick={onClose}>
