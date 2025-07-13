@@ -132,6 +132,10 @@ const LoadingSkeleton = () => (
     </div>
 );
 
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June", 
+  "July", "August", "September", "October", "November", "December"
+];
 
 export default function DateDetails({ date, onClose }: DateDetailsProps) {
   const [details, setDetails] = useState<BengaliInsightsOutput | null>(null);
@@ -140,7 +144,9 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
   const [isFetched, setIsFetched] = useState(false);
   
   const fullBengaliDateHeader = `${date.bengaliMonth} ${toBengaliNumber(date.bengaliDate)}, ${toBengaliNumber(date.bengaliYear)}, ${date.bengaliWeekday}`;
-  const gregorianDate = new Date(date.gregorianYear, date.gregorianMonth, date.gregorianDate).toLocaleDateString('en-US', {
+  
+  // Create a reliable, standardized date string.
+  const gregorianDateForDisplay = new Date(date.gregorianYear, date.gregorianMonth, date.gregorianDate).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
   
@@ -159,9 +165,14 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
     setIsFetched(true);
     try {
       const bengaliDateForAI = `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`;
+      
+      // Standardize the Gregorian date format for the AI
+      const gregorianMonthName = MONTH_NAMES[date.gregorianMonth];
+      const gregorianDateForAI = `${gregorianMonthName} ${date.gregorianDate}, ${date.gregorianYear}`;
+
       const result = await getBengaliInsights({
           bengaliDate: bengaliDateForAI,
-          gregorianDate: gregorianDate
+          gregorianDate: gregorianDateForAI
       });
       setDetails(result);
     } catch (e) {
@@ -181,7 +192,7 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
         <CardHeader className="p-0 sticky top-0 z-10 bg-card/95 backdrop-blur-sm">
            <div className="bg-primary text-primary-foreground p-4 text-center relative">
                 <CardTitle className="font-headline text-xl">{fullBengaliDateHeader}</CardTitle>
-                <p className="text-sm text-primary-foreground/80">{gregorianDate}</p>
+                <p className="text-sm text-primary-foreground/80">{gregorianDateForDisplay}</p>
                 {onClose && (
                     <Button variant="ghost" size="icon" className="absolute top-1/2 -translate-y-1/2 right-2 h-8 w-8 text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground" onClick={onClose}>
                         <X className="h-5 w-5" />
