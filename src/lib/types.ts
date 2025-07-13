@@ -4,6 +4,7 @@ export interface PanchangDate {
   gregorianYear: number;
   bengaliDate: number;
   bengaliMonth: string;
+  bengaliMonthIndex: number;
   bengaliYear: number;
   bengaliWeekday: string;
   tithi: { name: string; endTime: string };
