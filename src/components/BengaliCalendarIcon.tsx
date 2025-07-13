@@ -4,7 +4,7 @@ import type { SVGProps } from "react";
 export const BengaliCalendarIcon = (props: SVGProps<SVGSVGElement>) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 -2 48 52"
+        viewBox="-4 -2 54 52"
         className={cn("h-8 w-8", props.className)}
         {...props}
     >
