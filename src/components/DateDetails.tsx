@@ -9,7 +9,8 @@ import { SunriseIcon, SunsetIcon, MoonriseIcon, MoonsetIcon } from './PanchangIc
 import { Button } from './ui/button';
 import { X, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { bengaliInsightsFlow, BengaliInsightsOutput } from '@/ai/flows/bengali-insights';
+import { type BengaliInsightsOutput } from '@/ai/flows/bengali-insights';
+import { getBengaliInsights } from '@/app/actions';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
 
@@ -164,17 +165,16 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
     try {
       const bengaliDateForAI = `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`;
       
-      // Standardize the Gregorian date format for the AI
       const gregorianDateForAI = `${gregorianMonthName} ${date.gregorianDate}, ${date.gregorianYear}`;
 
-      const result = await bengaliInsightsFlow({
+      const result = await getBengaliInsights({
           bengaliDate: bengaliDateForAI,
           gregorianDate: gregorianDateForAI
       });
       setDetails(result);
     } catch (e: any) {
-      console.error("AI flow failed:", e);
-      if (e.message && (e.message.includes('API key not valid') || e.message.includes('[GoogleGenerativeAI Error]: API key not found'))) {
+      console.error(e);
+      if (e.message && (e.message.includes('API key not valid') || e.message.includes('API key not found'))) {
           setError('AI বৈশিষ্ট্যটি কনফিগার করা নেই। অনুগ্রহ করে আপনার হোস্টিং প্রদানকারীর (उदा. Vercel) সেটিংসে GOOGLE_API_KEY এনভায়রনমেন্ট ভেরিয়েবল সেট করুন।');
       } else {
         setError('তথ্য আনতে সমস্যা হয়েছে। বিস্তারিত জানতে ব্রাউজার কনসোল দেখুন অথবা আবার চেষ্টা করুন।');

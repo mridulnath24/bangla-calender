@@ -78,3 +78,5 @@ export const bengaliInsightsFlow = ai.defineFlow(
     return output!;
   }
 );
+
+export default bengaliInsightsFlow;

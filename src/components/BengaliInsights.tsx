@@ -2,15 +2,16 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { getBengaliInsights } from '@/ai/flows/bengali-insights';
+import { getBengaliInsights } from '@/app/actions';
 import { Sparkles } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
 interface BengaliInsightsProps {
   bengaliDate: string;
+  gregorianDate: string;
 }
 
-export default function BengaliInsights({ bengaliDate }: BengaliInsightsProps) {
+export default function BengaliInsights({ bengaliDate, gregorianDate }: BengaliInsightsProps) {
   const [insights, setInsights] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,11 +31,15 @@ export default function BengaliInsights({ bengaliDate }: BengaliInsightsProps) {
     setInsights('');
     setIsFetched(true);
     try {
-      const result = await getBengaliInsights({ bengaliDate });
-      setInsights(result.insights);
-    } catch (e) {
-      setError('তথ্য আনতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      const result = await getBengaliInsights({ bengaliDate, gregorianDate });
+      setInsights(result.culturalSignificance);
+    } catch (e: any) {
       console.error(e);
+      if (e.message && (e.message.includes('API key not valid') || e.message.includes('API key not found'))) {
+          setError('AI বৈশিষ্ট্যটি কনফিগার করা নেই। অনুগ্রহ করে আপনার হোস্টিং প্রদানকারীর (उदा. Vercel) সেটিংসে GOOGLE_API_KEY এনভায়রনমেন্ট ভেরিয়েবল সেট করুন।');
+      } else {
+        setError('তথ্য আনতে সমস্যা হয়েছে। বিস্তারিত জানতে ব্রাউজার কনসোল দেখুন অথবা আবার চেষ্টা করুন।');
+      }
     } finally {
       setIsLoading(false);
     }
