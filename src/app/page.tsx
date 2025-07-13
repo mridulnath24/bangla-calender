@@ -7,7 +7,7 @@ import DateDetails from '@/components/DateDetails';
 import { getMonthData } from '@/lib/panchang-data';
 import type { PanchangDate } from '@/lib/types';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from '@/components/ui/skeleton';
 
 const LoadingSkeleton = () => (
@@ -53,12 +53,6 @@ export default function Home() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const today = new Date();
-    // This is an approximation. A real app would have a robust bengali date converter.
-    // For now, we will just use the current gregorian month and year for demonstration.
-    const year = today.getFullYear() - 593;
-    const month = today.getMonth(); 
-    
     // Set the initial view to Aashar 1432 for consistency with the design
     setCurrentBengaliMonthIndex(2);
     setCurrentBengaliYear(1432);
@@ -134,6 +128,7 @@ export default function Home() {
       {isMobile && (
         <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
             <SheetContent side="bottom" className="h-[90vh] p-0 border-t-2" >
+                <SheetTitle className="sr-only">Date Details</SheetTitle>
                 {selectedDate && <DateDetails date={selectedDate} onClose={() => setIsDetailsOpen(false)} />}
             </SheetContent>
         </Sheet>
