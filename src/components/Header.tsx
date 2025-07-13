@@ -6,13 +6,23 @@ import type { PanchangDate } from '@/lib/types';
 import { toBengaliNumber } from '@/lib/bengali-helpers';
 import { DarkModeToggle } from '@/components/DarkModeToggle';
 import { BengaliCalendarIcon } from '@/components/BengaliCalendarIcon';
-import { format } from 'date-fns';
-import { bn } from 'date-fns/locale';
 import { Clock } from 'lucide-react';
 
 interface HeaderProps {
   today: PanchangDate | undefined;
 }
+
+const formatGregorianDateInBengali = (date: Date): string => {
+    const day = toBengaliNumber(date.getDate());
+    const year = toBengaliNumber(date.getFullYear());
+    const monthNames = [
+        "জানুয়ারী", "ফেব্রুয়ারী", "মার্চ", "এপ্রিল", "মে", "জুন",
+        "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
+    ];
+    const month = monthNames[date.getMonth()];
+    return `${day} ${month}, ${year}`;
+}
+
 
 export default function Header({ today }: HeaderProps) {
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
@@ -41,7 +51,7 @@ export default function Header({ today }: HeaderProps) {
                     {today && (
                         <p className="font-semibold text-primary">{`${toBengaliNumber(today.bengaliDate)} ${today.bengaliMonth}, ${toBengaliNumber(today.bengaliYear)}`}</p>
                     )}
-                    <p className="text-muted-foreground">{format(new Date(), 'PPP', { locale: bn })}</p>
+                    {currentTime && <p className="text-muted-foreground">{formatGregorianDateInBengali(currentTime)}</p>}
                 </div>
                 {currentTime && (
                     <div className="flex items-center gap-2 text-muted-foreground">
