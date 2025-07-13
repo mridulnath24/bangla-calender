@@ -173,12 +173,12 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
       });
       setDetails(result);
     } catch (e: any) {
+      console.error("AI flow failed:", e);
       if (e.message && (e.message.includes('API key not valid') || e.message.includes('[GoogleGenerativeAI Error]: API key not found'))) {
           setError('AI বৈশিষ্ট্যটি কনফিগার করা নেই। অনুগ্রহ করে আপনার হোস্টিং প্রদানকারীর (उदा. Vercel) সেটিংসে GOOGLE_API_KEY এনভায়রনমেন্ট ভেরিয়েবল সেট করুন।');
       } else {
-        setError('তথ্য আনতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+        setError('তথ্য আনতে সমস্যা হয়েছে। বিস্তারিত জানতে ব্রাউজার কনসোল দেখুন অথবা আবার চেষ্টা করুন।');
       }
-      console.error(e);
     } finally {
       setIsLoading(false);
     }
