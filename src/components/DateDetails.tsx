@@ -6,6 +6,7 @@ import { Separator } from './ui/separator';
 import { SunriseIcon, SunsetIcon, MoonriseIcon, MoonsetIcon } from './PanchangIcons';
 import { Button } from './ui/button';
 import { X } from 'lucide-react';
+import BengaliInsights from './BengaliInsights';
 
 interface DateDetailsProps {
   date: PanchangDate;
@@ -15,7 +16,7 @@ interface DateDetailsProps {
 const DetailRow = ({ label, value }: { label: string, value: string }) => (
   <div className="flex justify-between items-center text-sm">
     <span className="text-muted-foreground">{label}</span>
-    <span className="font-medium">{value}</span>
+    <span className="font-medium text-right">{value}</span>
   </div>
 );
 
@@ -51,6 +52,7 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
   const gregorianDate = new Date(date.gregorianYear, date.gregorianMonth, date.gregorianDate).toLocaleDateString('bn-BD', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
+  const insightsDate = `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`;
 
   return (
     <ScrollArea className="h-full">
@@ -106,6 +108,9 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
                 <Separator />
                 </>
              )}
+            
+            <BengaliInsights bengaliDate={insightsDate} />
+            <Separator />
             
             <PanchangSection title="দৃকসিদ্ধ" details={date.drikSiddha} />
             <Separator />
