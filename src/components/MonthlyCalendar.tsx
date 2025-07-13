@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { PanchangDate } from '@/lib/types';
@@ -82,7 +83,7 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
           </Button>
           <div className="flex flex-col sm:flex-row items-center gap-2">
             <Select value={String(bengaliMonthIndex)} onValueChange={(value) => onMonthChange(Number(value))}>
-              <SelectTrigger className="w-[140px] text-lg md:text-xl font-headline text-primary border-none focus:ring-0 bg-transparent">
+              <SelectTrigger className="w-[140px] text-lg md:text-xl font-headline text-primary focus:ring-ring bg-background/50 hover:bg-background/80 border-border/50">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
               <SelectContent>
@@ -92,7 +93,7 @@ export default function MonthlyCalendar({ monthData, selectedDate, onDateSelect,
               </SelectContent>
             </Select>
             <Select value={String(bengaliYear)} onValueChange={(value) => onYearChange(Number(value))}>
-              <SelectTrigger className="w-[120px] text-lg md:text-xl font-headline text-primary border-none focus:ring-0 bg-transparent">
+              <SelectTrigger className="w-[120px] text-lg md:text-xl font-headline text-primary focus:ring-ring bg-background/50 hover:bg-background/80 border-border/50">
                 <SelectValue placeholder="Select year" />
               </SelectTrigger>
               <SelectContent>
