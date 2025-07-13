@@ -1,3 +1,6 @@
+// This component is not currently used in the main layout
+// but is kept for potential future use.
+
 "use client"
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';

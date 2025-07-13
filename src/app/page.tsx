@@ -11,7 +11,6 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
-  // Set initial state to Aashar 1432 as per the user's image
   const [currentBengaliMonthIndex, setCurrentBengaliMonthIndex] = useState(2); 
   const [currentBengaliYear, setCurrentBengaliYear] = useState(1432);
   const [monthData, setMonthData] = useState<PanchangDate[]>([]);
@@ -22,12 +21,9 @@ export default function Home() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    // This effect will run once on mount to set the initial view
-    const todaysBengaliDate = getTodaysBengaliDate();
-    if (todaysBengaliDate) {
-      setCurrentBengaliMonthIndex(todaysBengaliDate.bengaliMonthIndex);
-      setCurrentBengaliYear(todaysBengaliDate.bengaliYear);
-    }
+    // Set the initial view to Aashar 1432
+    setCurrentBengaliMonthIndex(2);
+    setCurrentBengaliYear(1432);
   }, []);
 
   useEffect(() => {
@@ -35,22 +31,14 @@ export default function Home() {
     const data = getMonthData(currentBengaliYear, currentBengaliMonthIndex);
     setMonthData(data);
     
-    // Select today's date if it exists in the current month's data
-    const today = data.find(d => d.isToday);
-    if (today) {
-      setSelectedDate(today);
-    } else if (selectedDate) {
-      // If a date was previously selected, try to find it in the new month data
-      const previouslySelected = data.find(d => 
-        d.bengaliDate === selectedDate.bengaliDate && 
-        d.gregorianMonth === selectedDate.gregorianMonth &&
-        d.gregorianYear === selectedDate.gregorianYear
-      );
-      setSelectedDate(previouslySelected || data[0]);
+    // Select the date that matches the image, which is Aashar 28
+    const specificDate = data.find(d => d.bengaliDate === 28);
+    if (specificDate) {
+        setSelectedDate(specificDate);
     } else if (data.length > 0) {
-      // Otherwise, default to the first day of the month
-      setSelectedDate(data[0]);
+        setSelectedDate(data[0]);
     }
+    
     setIsLoading(false);
   }, [currentBengaliYear, currentBengaliMonthIndex]);
 
@@ -110,8 +98,8 @@ export default function Home() {
       </main>
       {isMobile && (
         <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-            <SheetContent side="bottom" className="h-[85vh] p-0 border-t-2">
-                {selectedDate && <DateDetails date={selectedDate} />}
+            <SheetContent side="bottom" className="h-[90vh] p-0 border-t-2" >
+                {selectedDate && <DateDetails date={selectedDate} onClose={() => setIsDetailsOpen(false)} />}
             </SheetContent>
         </Sheet>
       )}
