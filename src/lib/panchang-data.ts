@@ -41,9 +41,19 @@ const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): Panc
     if (bengaliYear !== 1432 || bengaliMonthIndex !== 2) {
         const BENGALI_MONTH_DAYS_REGULAR = [31, 31, 32, 31, 31, 30, 30, 30, 30, 30, 30, 30];
         const daysInMonth = BENGALI_MONTH_DAYS_REGULAR[bengaliMonthIndex] || 30;
+        
+        // This is an approximation and might not be accurate for all years.
+        // The Bengali New Year (Pohela Boishakh) is around April 14th/15th.
+        const startGregorianDate = new Date(bengaliYear - 593, 3, 15); // Start around April 15th
+        startGregorianDate.setMonth(startGregorianDate.getMonth() + bengaliMonthIndex);
+
+
          return Array.from({ length: daysInMonth }, (_, i) => {
             const bengaliDate = i + 1;
-            const gregorianDate = new Date(bengaliYear-593, bengaliMonthIndex, bengaliDate); // Approximation
+            // Create a new date object for each day to avoid mutation issues.
+            const gregorianDate = new Date(startGregorianDate.getTime());
+            gregorianDate.setDate(gregorianDate.getDate() + i);
+
             return {
                 gregorianDate: gregorianDate.getDate(),
                 gregorianMonth: gregorianDate.getMonth(),
