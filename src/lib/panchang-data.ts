@@ -1,75 +1,8 @@
 import type { PanchangDate, TodayInfo } from './types';
 import { BENGALI_WEEKDAYS, BENGALI_MONTHS } from './bengali-helpers';
 
-// Placeholder details for dates that are not 'Aashar 28, 1432'
-const getPlaceholderDetails = () => ({
-  vikramSamvat: 'N/A',
-  sakaSamvat: 'N/A',
-  indianCivilDate: 'N/A',
-  chandraRashi: 'N/A',
-  suryaRashi: 'N/A',
-  sunrise: 'N/A',
-  sunset: 'N/A',
-  moonrise: 'N/A',
-  moonset: 'N/A',
-  drikSiddha: {
-    tithi: 'N/A',
-    nakshatra: 'N/A',
-    amritayog: { day: 'N/A', night: 'N/A' },
-    mahendrayog: { day: 'N/A' },
-    barabela: 'N/A',
-    kalabela: 'N/A',
-    kalaratri: 'N/A',
-  },
-  suryaSiddhanta: {
-    tithi: 'N/A',
-    nakshatra: 'N/A',
-    amritayog: { day: 'N/A', night: 'N/A' },
-    mahendrayog: { day: 'N/A' },
-    barabela: 'N/A',
-    kalabela: 'N/A',
-    kalaratri: 'N/A',
-  }
-});
-
-const aashar28Data = {
-    vikramSamvat: 'শ্রাবণ ০৩, ২০৮২',
-    sakaSamvat: 'আষাঢ় ১৮',
-    indianCivilDate: 'আষাঢ় ২২, ১৯৪৭',
-    chandraRashi: 'মকর',
-    suryaRashi: 'মিথুন',
-    sunrise: '০৫:০৪ AM',
-    sunset: '০৬:২০ PM',
-    moonrise: '০৮:২৮ PM',
-    moonset: '০৮:০২ AM',
-    drikSiddha: {
-        tithi: 'কৃষ্ণ পক্ষ তৃতীয়া upto ০১:০৩ AM (next day) followed by চতুর্থী',
-        nakshatra: 'শ্রবণা upto ০৬:৫৩ AM followed by ধনিষ্ঠা',
-        amritayog: {
-            day: '০৬:৫০ AM - ৯:২৯ AM, ১২:০৮ PM - ০২:৪৭ PM',
-            night: '০৬:২০ PM - ০৭:৪৬ PM, ১০:৩৮ PM - পরদিন ১২:৪৬ AM',
-        },
-        mahendrayog: { day: '০৪:৩৪ PM - ০৫:২৭ PM' },
-        barabela: '১০:০২ AM - ১১:৪২ AM',
-        kalabela: '১১:৪২ AM - ০১:২১ PM',
-        kalaratri: '০১:০৩ AM - পরদিন ০২:২৩ AM',
-    },
-    suryaSiddhanta: {
-        tithi: 'কৃষ্ণ পক্ষ তৃতীয়া upto ০১:১১ AM (next day) followed by চতুর্থী',
-        nakshatra: 'শ্রবণা upto ০৭:৫৫ AM followed by ধনিষ্ঠা',
-        amritayog: {
-            day: '০৬:৫০ AM - ৯:২৯ AM, ১২:০৮ PM - ০২:৪৮ PM',
-            night: '০৬:২০ PM - ০৭:৪৬ PM, ১০:৩৮ PM - পরদিন ১২:৪৬ AM',
-        },
-        mahendrayog: { day: '০৪:৩৪ PM - ০৫:২৭ PM' },
-        barabela: '১০:০২ AM - ১১:৪২ AM',
-        kalabela: '১১:৪২ AM - ০১:২১ PM',
-        kalaratri: '০১:০২ AM - পরদিন ০২:২৩ AM',
-    },
-};
-
 // Hardcoded data for Aashar 1432 (June/July 2025) based on the provided image.
-const aashar1432Data: Omit<PanchangDate, 'isToday' | 'bengaliWeekday' | 'bengaliMonthIndex' | 'bengaliYear' | 'bengaliMonth' | 'vikramSamvat' | 'sakaSamvat' | 'indianCivilDate' | 'chandraRashi' | 'suryaRashi' | 'sunrise' | 'sunset' | 'moonrise' | 'moonset' | 'drikSiddha' | 'suryaSiddhanta'>[] = [
+const aashar1432Data: Omit<PanchangDate, 'isToday' | 'bengaliWeekday' | 'bengaliMonthIndex' | 'bengaliYear' | 'bengaliMonth'>[] = [
   { gregorianDate: 16, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 1, tithi: { name: 'পঞ্চমী', endTime: '' }, nakshatra: { name: 'ধনিষ্ঠা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
   { gregorianDate: 17, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 2, tithi: { name: 'ষষ্ঠী', endTime: '' }, nakshatra: { name: 'শতভিষা', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
   { gregorianDate: 18, gregorianMonth: 5, gregorianYear: 2025, bengaliDate: 3, tithi: { name: 'সপ্তমী', endTime: '' }, nakshatra: { name: 'পূর্ব ভাদ্রপদ', endTime: '' }, moonPhase: 'কৃষ্ণপক্ষ', events: [] },
@@ -125,7 +58,6 @@ const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): Panc
                 moonPhase: 'কৃষ্ণপক্ষ',
                 events: [],
                 isToday: false,
-                ...getPlaceholderDetails()
             };
         });
     }
@@ -137,11 +69,8 @@ const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): Panc
         const gregorianDateObj = new Date(dayData.gregorianYear, dayData.gregorianMonth, dayData.gregorianDate);
         gregorianDateObj.setHours(0, 0, 0, 0);
 
-        const isAashar28 = dayData.bengaliDate === 28;
-
         return {
             ...dayData,
-            ...(isAashar28 ? aashar28Data : getPlaceholderDetails()),
             bengaliMonth: BENGALI_MONTHS[bengaliMonthIndex],
             bengaliMonthIndex: bengaliMonthIndex,
             bengaliYear: bengaliYear,

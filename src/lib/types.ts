@@ -12,21 +12,6 @@ export interface PanchangDate {
   moonPhase: 'পূর্ণিমা' | 'অমাবস্যা' | 'কৃষ্ণপক্ষ' | 'শুক্লপক্ষ';
   events: string[];
   isToday: boolean;
-  
-  // New detailed fields
-  vikramSamvat: string;
-  sakaSamvat: string;
-  indianCivilDate: string;
-  chandraRashi: string;
-  suryaRashi: string;
-
-  sunrise: string;
-  sunset: string;
-  moonrise: string;
-  moonset: string;
-  
-  drikSiddha: PanchangDetails;
-  suryaSiddhanta: PanchangDetails;
 }
 
 export interface PanchangDetails {

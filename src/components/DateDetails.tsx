@@ -1,12 +1,15 @@
-import type { PanchangDate, PanchangDetails } from '@/lib/types';
+"use client"
+import type { PanchangDate } from '@/lib/types';
 import { toBengaliNumber } from '@/lib/bengali-helpers';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { SunriseIcon, SunsetIcon, MoonriseIcon, MoonsetIcon } from './PanchangIcons';
 import { Button } from './ui/button';
-import { X } from 'lucide-react';
-import BengaliInsights from './BengaliInsights';
+import { X, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { getBengaliInsights, BengaliInsightsOutput } from '@/ai/flows/bengali-insights';
+import { Skeleton } from './ui/skeleton';
 
 interface DateDetailsProps {
   date: PanchangDate;
@@ -20,7 +23,7 @@ const DetailRow = ({ label, value }: { label: string, value: string }) => (
   </div>
 );
 
-const PanchangSection = ({ title, details }: { title: string, details: PanchangDetails }) => (
+const PanchangSection = ({ title, details }: { title: string, details: BengaliInsightsOutput['drikSiddha'] }) => (
     <div className="space-y-4">
         <h3 className="font-headline text-lg text-primary text-center">{title}</h3>
         <div className="space-y-2 text-sm">
@@ -45,78 +48,151 @@ const PanchangSection = ({ title, details }: { title: string, details: PanchangD
 );
 
 
-export default function DateDetails({ date, onClose }: DateDetailsProps) {
-  if (!date) return null;
+const GeneratedDetails = ({ details }: { details: BengaliInsightsOutput }) => (
+  <CardContent className="space-y-4 p-4">
+    <div className="bg-primary/10 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-2 text-center rounded-lg">
+      <div className="flex items-center justify-center gap-2">
+        <SunriseIcon className="h-5 w-5" />
+        <div><strong>সূর্যোদয়</strong><p>{details.sunrise}</p></div>
+      </div>
+      <div className="flex items-center justify-center gap-2">
+        <SunsetIcon className="h-5 w-5" />
+        <div><strong>সূর্যাস্ত</strong><p>{details.sunset}</p></div>
+      </div>
+      <div className="flex items-center justify-center gap-2">
+        <MoonriseIcon className="h-5 w-5" />
+        <div><strong>চন্দ্রোদয়</strong><p>{details.moonrise}</p></div>
+      </div>
+      <div className="flex items-center justify-center gap-2">
+        <MoonsetIcon className="h-5 w-5" />
+        <div><strong>চন্দ্রাস্ত</strong><p>{details.moonset}</p></div>
+      </div>
+    </div>
+    
+    <div className="space-y-2">
+      <DetailRow label="বিক্রম সম্বৎ" value={details.vikramSamvat} />
+      <DetailRow label="শক সংবৎ" value={details.sakaSamvat} />
+      <DetailRow label="ভারতীয় সিভিল" value={details.indianCivilDate} />
+    </div>
+    <Separator />
+    <div className="space-y-2">
+      <DetailRow label="চন্দ্র রাশি" value={details.chandraRashi} />
+      <DetailRow label="সূর্য রাশি" value={details.suryaRashi} />
+    </div>
+    <Separator />
 
+    {details.culturalSignificance && (
+      <>
+        <div className="space-y-3 text-center">
+          <h3 className="font-semibold text-lg font-headline text-primary">সাংস্কৃতিক তথ্য</h3>
+            <Card className="bg-primary/5 border-primary/20 text-left">
+              <CardContent className="p-4">
+                <p className="text-sm leading-relaxed">{details.culturalSignificance}</p>
+              </CardContent>
+            </Card>
+        </div>
+        <Separator />
+      </>
+    )}
+
+    <PanchangSection title="দৃকসিদ্ধ" details={details.drikSiddha} />
+    <Separator />
+    <PanchangSection title="সূর্য সিদ্ধান্ত" details={details.suryaSiddhanta} />
+  </CardContent>
+);
+
+const LoadingSkeleton = () => (
+    <div className="p-4 space-y-4">
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-24 w-full" />
+        <Separator />
+        <Skeleton className="h-16 w-full" />
+        <Separator />
+        <Skeleton className="h-48 w-full" />
+        <Separator />
+        <Skeleton className="h-48 w-full" />
+    </div>
+);
+
+
+export default function DateDetails({ date, onClose }: DateDetailsProps) {
+  const [details, setDetails] = useState<BengaliInsightsOutput | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isFetched, setIsFetched] = useState(false);
+  
   const fullBengaliDate = `${date.bengaliMonth} ${toBengaliNumber(date.bengaliDate)}, ${toBengaliNumber(date.bengaliYear)}, ${date.bengaliWeekday}`;
-  const gregorianDate = new Date(date.gregorianYear, date.gregorianMonth, date.gregorianDate).toLocaleDateString('bn-BD', {
+  const gregorianDate = new Date(date.gregorianYear, date.gregorianMonth, date.gregorianDate).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
-  const insightsDate = `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`;
+  
+  useEffect(() => {
+    // Reset when the date changes
+    setDetails(null);
+    setIsLoading(false);
+    setError('');
+    setIsFetched(false);
+  }, [date]);
+
+  const fetchDetails = async () => {
+    setIsLoading(true);
+    setError('');
+    setDetails(null);
+    setIsFetched(true);
+    try {
+      const result = await getBengaliInsights({
+          bengaliDate: `${toBengaliNumber(date.bengaliDate)} ${date.bengaliMonth} ${toBengaliNumber(date.bengaliYear)}`,
+          gregorianDate: gregorianDate
+      });
+      setDetails(result);
+    } catch (e) {
+      setError('তথ্য আনতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  if (!date) return null;
 
   return (
     <ScrollArea className="h-full">
       <Card className="shadow-lg h-full border-0 lg:border relative bg-card">
-        <CardHeader className="p-0">
+        <CardHeader className="p-0 sticky top-0 z-10 bg-card">
            <div className="bg-primary text-primary-foreground p-4 text-center relative">
                 <CardTitle className="font-headline text-xl">{fullBengaliDate}</CardTitle>
+                <p className="text-sm text-primary-foreground/80">{gregorianDate}</p>
                 {onClose && (
                     <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-8 w-8 text-primary-foreground hover:bg-primary/80 hover:text-primary-foreground" onClick={onClose}>
                         <X className="h-5 w-5" />
                     </Button>
                 )}
            </div>
-           <div className="bg-primary/80 text-primary-foreground grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs p-2 text-center">
-                <div className="flex items-center justify-center gap-2">
-                    <SunriseIcon className="h-5 w-5" />
-                    <div><strong>সূর্যোদয়</strong><p>{date.sunrise}</p></div>
-                </div>
-                 <div className="flex items-center justify-center gap-2">
-                    <SunsetIcon className="h-5 w-5" />
-                    <div><strong>সূর্যাস্ত</strong><p>{date.sunset}</p></div>
-                </div>
-                 <div className="flex items-center justify-center gap-2">
-                    <MoonriseIcon className="h-5 w-5" />
-                    <div><strong>চন্দ্রোদয়</strong><p>{date.moonrise}</p></div>
-                </div>
-                 <div className="flex items-center justify-center gap-2">
-                    <MoonsetIcon className="h-5 w-5" />
-                    <div><strong>চন্দ্রাস্ত</strong><p>{date.moonset}</p></div>
-                </div>
-           </div>
         </CardHeader>
-        <CardContent className="space-y-4 p-4">
-            <div className="space-y-2">
-                <DetailRow label="বাংলা তারিখ" value={`${date.bengaliMonth} ${toBengaliNumber(date.bengaliDate)}, ${toBengaliNumber(date.bengaliYear)}`} />
-                <DetailRow label="গ্রেগরীয়" value={gregorianDate} />
-                <DetailRow label="বিক্রম সম্বৎ" value={date.vikramSamvat} />
-                <DetailRow label="শক সংবৎ" value={date.sakaSamvat} />
-                <DetailRow label="ভারতীয় সিভিল" value={date.indianCivilDate} />
+        
+        {isFetched ? (
+            <>
+                {isLoading && <LoadingSkeleton />}
+                {error && <p className="p-4 text-sm text-destructive text-center">{error}</p>}
+                {details && <GeneratedDetails details={details} />}
+            </>
+        ) : (
+             <div className="p-6 flex flex-col gap-4 items-center text-center border-2 border-dashed rounded-lg m-4">
+                <Sparkles className="h-10 w-10 text-muted-foreground" />
+                <p className="text-muted-foreground">এই দিনের সম্পূর্ণ পঞ্জিকা বিবরণ দেখতে চান?</p>
+                 {date.events.length > 0 && (
+                    <div className="text-center">
+                        <h3 className="font-headline text-lg text-primary">উৎসব, ব্রত, উপবাস</h3>
+                        {date.events.map(event => <p key={event}>{event}</p>)}
+                    </div>
+                 )}
+                <Button onClick={fetchDetails} disabled={isLoading} size="lg">
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    {isLoading ? 'লোড হচ্ছে...' : 'পঞ্জিকা জেনারেট করুন'}
+                </Button>
             </div>
-            <Separator />
-            <div className="space-y-2">
-                <DetailRow label="চন্দ্র রাশি" value={date.chandraRashi} />
-                <DetailRow label="সূর্য রাশি" value={date.suryaRashi} />
-            </div>
-             <Separator />
-             {date.events.length > 0 && (
-                <>
-                <div className="space-y-2 text-center">
-                    <h3 className="font-headline text-lg text-primary">উৎসব, ব্রত, উপবাস</h3>
-                    {date.events.map(event => <p key={event}>{event}</p>)}
-                </div>
-                <Separator />
-                </>
-             )}
-            
-            <BengaliInsights bengaliDate={insightsDate} />
-            <Separator />
-            
-            <PanchangSection title="দৃকসিদ্ধ" details={date.drikSiddha} />
-            <Separator />
-            <PanchangSection title="সূর্য সিদ্ধান্ত" details={date.suryaSiddhanta} />
-
-        </CardContent>
+        )}
       </Card>
     </ScrollArea>
   );
