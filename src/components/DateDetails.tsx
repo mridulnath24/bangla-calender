@@ -9,7 +9,7 @@ import { SunriseIcon, SunsetIcon, MoonriseIcon, MoonsetIcon } from './PanchangIc
 import { Button } from './ui/button';
 import { X, Sparkles } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getBengaliInsights, BengaliInsightsOutput } from '@/ai/flows/bengali-insights';
+import { bengaliInsightsFlow, BengaliInsightsOutput } from '@/ai/flows/bengali-insights';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
 
@@ -170,13 +170,17 @@ export default function DateDetails({ date, onClose }: DateDetailsProps) {
       const gregorianMonthName = MONTH_NAMES[date.gregorianMonth];
       const gregorianDateForAI = `${gregorianMonthName} ${date.gregorianDate}, ${date.gregorianYear}`;
 
-      const result = await getBengaliInsights({
+      const result = await bengaliInsightsFlow({
           bengaliDate: bengaliDateForAI,
           gregorianDate: gregorianDateForAI
       });
       setDetails(result);
-    } catch (e) {
-      setError('তথ্য আনতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+    } catch (e: any) {
+      if (e.message && e.message.includes('API key not valid')) {
+          setError('The AI feature is not configured correctly. Please ensure the GOOGLE_API_KEY environment variable is set in your deployment.');
+      } else {
+        setError('তথ্য আনতে সমস্যা হয়েছে। আবার চেষ্টা করুন।');
+      }
       console.error(e);
     } finally {
       setIsLoading(false);

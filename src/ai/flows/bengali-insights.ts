@@ -3,9 +3,9 @@
 /**
  * @fileOverview Provides detailed panchang and cultural insights for a specific Bengali calendar date.
  *
- * - getBengaliInsights - A function that retrieves panchang details for a given Bengali date.
- * - BengaliInsightsInput - The input type for the getBengaliInsights function.
- * - BengaliInsightsOutput - The return type for the getBengaliInsights function.
+ * - bengaliInsightsFlow - A function that retrieves panchang details for a given Bengali date.
+ * - BengaliInsightsInput - The input type for the bengaliInsightsFlow function.
+ * - BengaliInsightsOutput - The return type for the bengaliInsightsFlow function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -52,10 +52,6 @@ const BengaliInsightsOutputSchema = z.object({
 });
 export type BengaliInsightsOutput = z.infer<typeof BengaliInsightsOutputSchema>;
 
-export async function getBengaliInsights(input: BengaliInsightsInput): Promise<BengaliInsightsOutput> {
-  return bengaliInsightsFlow(input);
-}
-
 const prompt = ai.definePrompt({
   name: 'bengaliInsightsPrompt',
   input: {schema: BengaliInsightsInputSchema},
@@ -71,7 +67,7 @@ const prompt = ai.definePrompt({
   `,
 });
 
-const bengaliInsightsFlow = ai.defineFlow(
+export const bengaliInsightsFlow = ai.defineFlow(
   {
     name: 'bengaliInsightsFlow',
     inputSchema: BengaliInsightsInputSchema,
