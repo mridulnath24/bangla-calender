@@ -12,6 +12,8 @@ import { toBengaliNumber } from '@/lib/bengali-helpers';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function Home() {
+  const [currentBengaliMonthIndex, setCurrentBengaliMonthIndex] = useState(5); // Ashwin
+  const [currentBengaliYear, setCurrentBengaliYear] = useState(1431);
   const [monthData, setMonthData] = useState<PanchangDate[]>([]);
   const [selectedDate, setSelectedDate] = useState<PanchangDate | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -20,8 +22,10 @@ export default function Home() {
   const isMobile = useIsMobile();
 
   useEffect(() => {
-    const data = getMonthData();
+    setIsLoading(true);
+    const data = getMonthData(currentBengaliYear, currentBengaliMonthIndex);
     setMonthData(data);
+    
     const today = data.find(d => d.isToday);
     if (today) {
       setSelectedDate(today);
@@ -30,7 +34,7 @@ export default function Home() {
       setSelectedDate(data[0]);
     }
     setIsLoading(false);
-  }, []);
+  }, [currentBengaliYear, currentBengaliMonthIndex]);
 
   const handleDateSelect = (date: PanchangDate) => {
     setSelectedDate(date);
@@ -38,11 +42,17 @@ export default function Home() {
       setIsDetailsOpen(true);
     }
   };
+  
+  const handleMonthChange = (monthIndex: number) => {
+    setCurrentBengaliMonthIndex(monthIndex);
+  };
+  
+  const handleYearChange = (year: number) => {
+    setCurrentBengaliYear(year);
+  };
 
   const today = monthData.find(d => d.isToday);
-  const currentBengaliMonth = monthData.length > 0 ? monthData[0].bengaliMonth : '';
-  const currentBengaliYear = monthData.length > 0 ? toBengaliNumber(monthData[0].bengaliYear) : '';
-
+  
   if (isLoading || !selectedDate) {
     return (
         <div className="flex flex-col min-h-screen bg-background">
@@ -69,8 +79,10 @@ export default function Home() {
               monthData={monthData}
               selectedDate={selectedDate}
               onDateSelect={handleDateSelect}
-              bengaliMonth={currentBengaliMonth}
+              bengaliMonthIndex={currentBengaliMonthIndex}
               bengaliYear={currentBengaliYear}
+              onMonthChange={handleMonthChange}
+              onYearChange={handleYearChange}
             />
           </div>
           <div className="hidden lg:block sticky top-24 h-[calc(100vh-8rem)]">

@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Literata', 'serif'],
+        body: ['Hind Siliguri', 'sans-serif'],
         headline: ['Literata', 'serif'],
         code: ['monospace'],
       },

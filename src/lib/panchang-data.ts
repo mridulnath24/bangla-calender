@@ -1,47 +1,100 @@
 import type { PanchangDate } from './types';
-import { BENGALI_WEEKDAYS } from './bengali-helpers';
+import { BENGALI_WEEKDAYS, BENGALI_MONTHS } from './bengali-helpers';
 
-// Sample data for Ashwin 1431 (Approx. Sep-Oct 2024)
-const generateMonthData = (): PanchangDate[] => {
-  const startDate = new Date(2024, 8, 18); // 18th September 2024 is 1st Ashwin 1431
+// Helper function to check if a year is a leap year
+const isLeap = (year: number) => new Date(year, 1, 29).getDate() === 29;
+
+// Map Bengali month index to approximate Gregorian start date
+const BENGALI_MONTH_GREGORIAN_START = [
+  { month: 3, day: 14 }, // Baishakh (starts around April 14/15)
+  { month: 4, day: 15 }, // Jaistha
+  { month: 5, day: 15 }, // Ashar
+  { month: 6, day: 16 }, // Sraban
+  { month: 7, day: 16 }, // Bhadra
+  { month: 8, day: 17 }, // Ashwin
+  { month: 9, day: 17 }, // Kartik
+  { month: 10, day: 16 }, // Agrahyan
+  { month: 11, day: 15 }, // Poush
+  { month: 0, day: 15 }, // Magh (starts next Gregorian year)
+  { month: 1, day: 13 }, // Falgun
+  { month: 2, day: 14 }, // Chaitra
+];
+
+// Number of days in each Bengali month
+const BENGALI_MONTH_DAYS = [31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30, 30];
+
+
+const generateMonthData = (bengaliYear: number, bengaliMonthIndex: number): PanchangDate[] => {
+  // Determine the Gregorian year for the start of the Bengali month
+  // Bengali year starts mid-April, so for months Magh-Chaitra, it's the next Gregorian year
+  const gregorianYear = bengaliMonthIndex >= 9 ? bengaliYear + 594 : bengaliYear + 593;
+
+  const start = BENGALI_MONTH_GREGORIAN_START[bengaliMonthIndex];
+  
+  // Adjust Falgun for leap years
+  const daysInFalgun = isLeap(gregorianYear) ? 31 : 30;
+  const monthLengths = [...BENGALI_MONTH_DAYS];
+  monthLengths[10] = daysInFalgun;
+  
+  const daysInMonth = monthLengths[bengaliMonthIndex];
+
+  // This is an approximation. A real panchang requires complex astronomical calculations.
+  const startDate = new Date(gregorianYear, start.month, start.day);
+  
   const tithis = ['প্রতিপদ', 'দ্বিতীয়া', 'তৃতীয়া', 'চতুর্থী', 'পঞ্চমী', 'ষষ্ঠী', 'সপ্তমী', 'অষ্টমী', 'নবমী', 'দশমী', 'একাদশী', 'দ্বাদশী', 'ত্রয়োদশী', 'চতুর্দশী'];
   const nakshatras = ['পূর্ব ভাদ্রপদ', 'উত্তর ভাদ্রপদ', 'রেবতী', 'অশ্বিনী', ' ভরণী', 'কৃত্তিকা', 'রোহিণী', 'মৃগশিরা', 'আর্দ্রা', 'পুনর্বসু', 'পুষ্যা', 'অশ্লেষা', 'মঘা', 'পূর্ব ফাল্গুনী', 'উত্তর ফাল্গুনী', 'হস্তা', 'চিত্রা', 'স্বাতী', 'বিশাখা', 'অনুরাধা', 'জ্যেষ্ঠা', 'মূলা', 'পূর্বাষাঢ়া', 'উত্তরাষাঢ়া', 'শ্রবণা', 'ধনিষ্ঠা', 'শতভিষা'];
   const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today's date
 
-  const generatedData: PanchangDate[] = Array.from({ length: 30 }, (_, i) => {
+  const generatedData: PanchangDate[] = Array.from({ length: daysInMonth }, (_, i) => {
     const currentDate = new Date(startDate);
     currentDate.setDate(startDate.getDate() + i);
 
-    const isToday = currentDate.getDate() === today.getDate() &&
-                    currentDate.getMonth() === today.getMonth() &&
-                    currentDate.getFullYear() === today.getFullYear();
+    const isToday = currentDate.getTime() === today.getTime();
 
-    let moonPhase: PanchangDate['moonPhase'] = i < 15 ? 'কৃষ্ণপক্ষ' : 'শুক্লপক্ষ';
+    // Simplified moon phase and tithi calculation
+    const dayOfMonth = i + 1;
+    let moonPhase: PanchangDate['moonPhase'] = dayOfMonth <= 15 ? 'কৃষ্ণপক্ষ' : 'শুক্লপক্ষ';
     let tithiName = '';
+    
+    // Approximating Purnima and Amavasya
+    const purnimaDay = Math.floor(daysInMonth / 2);
+    const amavasyaDay = daysInMonth;
 
-    if (i === 0) {
-      tithiName = 'পূর্ণিমা';
-      moonPhase = 'পূর্ণিমা';
-    } else if (i === 14) {
-      tithiName = 'অমাবস্যা';
-      moonPhase = 'অমাবস্যা';
-    } else if (i > 14) {
-      tithiName = tithis[i - 15];
+    if (dayOfMonth === 1) {
+      tithiName = tithis[0] // Pratipad
+    } else if (dayOfMonth === purnimaDay) {
+        tithiName = 'পূর্ণিমা';
+        moonPhase = 'পূর্ণিমা';
+    } else if (dayOfMonth === amavasyaDay) {
+        tithiName = 'অমাবস্যা';
+        moonPhase = 'অমাবস্যা';
+    } else if (dayOfMonth > purnimaDay) {
+      // Shukla Paksha
+      tithiName = tithis[(dayOfMonth - purnimaDay -1) % 14];
     } else {
-      tithiName = tithis[i - 1];
+      // Krishna Paksha
+      tithiName = tithis[(dayOfMonth-1) % 14];
     }
 
     let events: string[] = [];
     if (tithiName === 'একাদশী') events.push('একাদশী');
     if (moonPhase === 'পূর্ণিমা') events.push('পূর্ণিমা');
     if (moonPhase === 'অমাবস্যা') events.push('অমাবস্যা');
-    if (i === 0) events.push('বিশ্বকর্মা পূজা');
-    if (i === 14) events.push('মহালয়া');
-    if (i >= 15 && i <= 19) {
-      const pujaDays = ['ষষ্ঠী', 'সপ্তমী', 'অষ্টমী', 'নবমী', 'দশমী'];
-      events.push(`দুর্গাপূজা - ${pujaDays[i - 15]}`);
+
+    // Sample Events (for demonstration)
+    if (bengaliMonthIndex === 5) { // Ashwin
+        if (i === 0) events.push('বিশ্বকর্মা পূজা');
+        if (i === 14) events.push('মহালয়া');
+        if (i >= 21 && i <= 25) {
+          const pujaDays = ['ষষ্ঠী', 'সপ্তমী', 'অষ্টমী', 'নবমী', 'দশমী'];
+          events.push(`দুর্গাপূজা - ${pujaDays[i - 21]}`);
+        }
+        if (i === 30) events.push('লক্ষ্মী পূজা');
     }
-    if (i === 24) events.push('লক্ষ্মী পূজা');
+     if (bengaliMonthIndex === 0 && i === 0) { // Baishakh
+        events.push('নববর্ষ');
+     }
 
 
     return {
@@ -49,11 +102,11 @@ const generateMonthData = (): PanchangDate[] => {
       gregorianMonth: currentDate.getMonth(),
       gregorianYear: currentDate.getFullYear(),
       bengaliDate: i + 1,
-      bengaliMonth: 'আশ্বিন',
-      bengaliYear: 1431,
+      bengaliMonth: BENGALI_MONTHS[bengaliMonthIndex],
+      bengaliYear: bengaliYear,
       bengaliWeekday: BENGALI_WEEKDAYS[currentDate.getDay()],
       tithi: { name: tithiName, endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
-      nakshatra: { name: nakshatras[i % 27], endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
+      nakshatra: { name: nakshatras[(currentDate.getDate() + currentDate.getMonth()*30) % 27], endTime: `${Math.floor(Math.random() * 12) + 1}:${String(Math.floor(Math.random()*60)).padStart(2,'0')} ${Math.random() > 0.5 ? 'AM' : 'PM'}` },
       moonPhase: moonPhase,
       events: events,
       isToday: isToday,
@@ -63,16 +116,7 @@ const generateMonthData = (): PanchangDate[] => {
   return generatedData;
 };
 
-const monthData = generateMonthData();
 
-export const getMonthData = (): PanchangDate[] => {
-    // In a real app, this would fetch from an API or calculate based on the current date.
-    // For now, we return our static data and update the `isToday` flag.
-    const today = new Date();
-    return monthData.map(d => ({
-        ...d,
-        isToday: d.gregorianDate === today.getDate() &&
-                 d.gregorianMonth === today.getMonth() &&
-                 d.gregorianYear === today.getFullYear(),
-    }));
+export const getMonthData = (bengaliYear: number, bengaliMonthIndex: number): PanchangDate[] => {
+    return generateMonthData(bengaliYear, bengaliMonthIndex);
 };
